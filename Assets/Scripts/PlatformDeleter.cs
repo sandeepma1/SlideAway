@@ -2,11 +2,11 @@
 
 public class PlatformDeleter : MonoBehaviour
 {
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider other)
     {
-        if (!collision.gameObject.CompareTag("Ball"))
+        if (!other.gameObject.CompareTag("Ball"))
         {
-            Destroy(collision.gameObject);
+            Destroy(other.gameObject);
         }
     }
 }

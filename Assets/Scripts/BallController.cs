@@ -20,8 +20,8 @@ public class BallController : MonoBehaviour
 
     private void Awake()
     {
-        UiManager.OnResumeStart += OnResumeStart;
-        UiManager.OnResumed += OnResumed;
+        UiContinuePanel.OnResumeStart += OnResumeStart;
+        UiContinuePanel.OnResumed += OnResumed;
         OnLastDropPosition += LastDropPosition;
     }
 
@@ -37,8 +37,8 @@ public class BallController : MonoBehaviour
 
     private void OnDestroy()
     {
-        UiManager.OnResumeStart -= OnResumeStart;
-        UiManager.OnResumed -= OnResumed;
+        UiContinuePanel.OnResumeStart -= OnResumeStart;
+        UiContinuePanel.OnResumed -= OnResumed;
         OnLastDropPosition -= LastDropPosition;
     }
 
@@ -54,7 +54,7 @@ public class BallController : MonoBehaviour
             }
         }
 
-        if (!Physics.Raycast(transform.position, Vector3.down, 1.0f))
+        if (!Physics.Raycast(transform.position, Vector3.down, 1.0f) && !gameOver)
         {
             GameOver();
         }
@@ -75,11 +75,11 @@ public class BallController : MonoBehaviour
 
     private void GameOver()
     {
+        OnGameOver?.Invoke();
         gameOver = true;
         rb.velocity = new Vector3(0, -fallSpeed, 0);
         ballSpotLight.intensity = 0;
         PlayerPrefs.SetInt("score", score);
-        OnGameOver?.Invoke();
         if (PlayerPrefs.HasKey("highScore"))
         {
             if (score > PlayerPrefs.GetInt("highScore"))
@@ -95,6 +95,7 @@ public class BallController : MonoBehaviour
 
     private void OnResumeStart()
     {
+        rb.velocity = new Vector3(0, 0, 0);
         gameObject.transform.position = new Vector3(lastDropPosition.x, lastDropPosition.y + 2, lastDropPosition.z);
     }
 

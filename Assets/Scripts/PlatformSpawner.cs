@@ -20,7 +20,7 @@ public class PlatformSpawner : MonoBehaviour
     {
         lastPosition = platform.transform.position;
         size = platform.transform.localScale.x;
-        for (int i = 0; i < 20; i++)
+        for (int i = 0; i < 10; i++)
         {
             SpawnPlatform();
         }
