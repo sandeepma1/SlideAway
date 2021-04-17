@@ -6,7 +6,6 @@ public class PlatformSpawner : MonoBehaviour
     [SerializeField] private Platform platformPrefab;
     [SerializeField] private Platform platformDiamondPrefab;
     [SerializeField] private GameObject platform;
-    [SerializeField] private GameObject diamonds;
     private Vector3 lastPosition;
     private float size;
 

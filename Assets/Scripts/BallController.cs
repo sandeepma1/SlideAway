@@ -7,16 +7,22 @@ public class BallController : MonoBehaviour
     public static Action OnGameOver;
     public static Action<int> OnScoreUpdated;
     public static Action<Vector3, bool> OnLastDropPosition;
+    [SerializeField] private Transform sphearBallMesh;
     [SerializeField] private Light ballSpotLight;
     [SerializeField] private GameObject particle;
-    [SerializeField] private float speed;
     [SerializeField] private float fallSpeed;
+    [SerializeField] private Material floorMaterial;
     private bool started;
     private bool gameOver;
     private Rigidbody rb;
     private int score;
     private Vector3 lastDropPosition;
     private bool isSpawnedLeft;
+    private float scoreHue;
+    [SerializeField] private float speed = 8;
+    private const float minSpeed = 8;
+    private const float maxSpeed = 12;
+    private bool isTurnedLeft;
 
     private void Awake()
     {
@@ -27,12 +33,11 @@ public class BallController : MonoBehaviour
 
     private void Start()
     {
+        speed = minSpeed;
         rb = GetComponent<Rigidbody>();
         started = false;
         gameOver = false;
-        score = 0;
-        OnScoreUpdated?.Invoke(score);
-        PlayerPrefs.SetInt("score", score);
+        UpdateScoreAndBallSpeed(0);
     }
 
     private void OnDestroy()
@@ -53,6 +58,17 @@ public class BallController : MonoBehaviour
                 OnGameStart?.Invoke();
             }
         }
+        else
+        {
+            if (isTurnedLeft)
+            {
+                sphearBallMesh.Rotate(Time.deltaTime * (speed * 100), 0, 0, Space.World);
+            }
+            else
+            {
+                sphearBallMesh.Rotate(0, 0, Time.deltaTime * (speed * -100), Space.World);
+            }
+        }
 
         if (!Physics.Raycast(transform.position, Vector3.down, 1.0f) && !gameOver)
         {
@@ -62,8 +78,7 @@ public class BallController : MonoBehaviour
         if (Input.GetMouseButtonDown(0) && !gameOver)
         {
             SwitchDirections();
-            score++;
-            OnScoreUpdated?.Invoke(score);
+            UpdateScoreAndBallSpeed(1);
         }
     }
 
@@ -79,7 +94,6 @@ public class BallController : MonoBehaviour
         gameOver = true;
         rb.velocity = new Vector3(0, -fallSpeed, 0);
         ballSpotLight.intensity = 0;
-        PlayerPrefs.SetInt("score", score);
         if (PlayerPrefs.HasKey("highScore"))
         {
             if (score > PlayerPrefs.GetInt("highScore"))
@@ -116,12 +130,14 @@ public class BallController : MonoBehaviour
 
     private void SwitchDirections()
     {
-        if (rb.velocity.z > 0)
+        if (rb.velocity.z > 0)//right
         {
+            isTurnedLeft = false;
             rb.velocity = new Vector3(speed, 0, 0);
         }
-        else if (rb.velocity.x > 0)
+        else if (rb.velocity.x > 0)//left
         {
+            isTurnedLeft = true;
             rb.velocity = new Vector3(0, 0, speed);
         }
     }
@@ -133,8 +149,29 @@ public class BallController : MonoBehaviour
             GameObject part = Instantiate(particle, collider.gameObject.transform.position, Quaternion.identity);
             Destroy(collider.gameObject);
             Destroy(part, 1.0f);
-            score += 2;
-            OnScoreUpdated?.Invoke(score);
+            UpdateScoreAndBallSpeed(2);
         }
+    }
+
+    private void UpdateScoreAndBallSpeed(int adder)
+    {
+        score += adder;
+        OnScoreUpdated?.Invoke(score);
+        scoreHue = Clamp0360((float)score) / 360.0f;
+        floorMaterial.color = Color.HSVToRGB(scoreHue, 0.8f, 0.75f);
+        if (speed <= maxSpeed)
+        {
+            speed = ((float)score / 100.0f) + minSpeed;
+        }
+    }
+
+    public float Clamp0360(float eulerAngles)
+    {
+        float result = eulerAngles - Mathf.CeilToInt(eulerAngles / 360f) * 360f;
+        if (result < 0)
+        {
+            result += 360f;
+        }
+        return result;
     }
 }

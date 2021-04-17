@@ -10,8 +10,8 @@ public class UiContinuePanel : MonoBehaviour
 {
     public static Action OnResumeStart;
     public static Action OnResumed;
-    [SerializeField] private CanvasGroup continueMenuCanvasGroup;
-    [SerializeField] private CanvasGroup resumePanelCanvasGroup;
+    [SerializeField] private GameObject continueMenuPanel;
+    [SerializeField] private GameObject resumePanel;
     [SerializeField] private GameObject continuePanel;
     [SerializeField] private Button restartButton;
     [SerializeField] private Button continueButton;
@@ -24,25 +24,27 @@ public class UiContinuePanel : MonoBehaviour
     [SerializeField] private TextMeshProUGUI highScore; // of the game over panel
     private const int continueTime = 8;//seconds
     private int Score;
+    private bool isContinueUsed = false;
 
     private void Awake()
     {
         BallController.OnGameOver += GameOver;
         BallController.OnGameStart += GameStart;
         BallController.OnScoreUpdated += OnScoreUpdated;
-        restartButton.onClick.AddListener(ResetLevel);
-        continueButton.onClick.AddListener(ResumeLevel);
-        noThanksButton.onClick.AddListener(NoThanks);
-        resumePanelCanvasGroup.alpha = 0;
-        continueMenuCanvasGroup.alpha = 0;
+        restartButton.onClick.AddListener(RestartLevelButtonClicked);
+        continueButton.onClick.AddListener(OnContinueButtonClicked);
+        noThanksButton.onClick.AddListener(NoThanksButtonClicked);
+        resumePanel.gameObject.SetActive(false);
+        continueMenuPanel.gameObject.SetActive(false);
         restartButton.gameObject.SetActive(false);
+        currentScore.gameObject.SetActive(false);
     }
 
     private void OnDestroy()
     {
-        restartButton.onClick.RemoveListener(ResetLevel);
-        continueButton.onClick.RemoveListener(ResumeLevel);
-        noThanksButton.onClick.RemoveListener(NoThanks);
+        restartButton.onClick.RemoveListener(RestartLevelButtonClicked);
+        continueButton.onClick.RemoveListener(OnContinueButtonClicked);
+        noThanksButton.onClick.RemoveListener(NoThanksButtonClicked);
         BallController.OnGameOver -= GameOver;
         BallController.OnGameStart -= GameStart;
         BallController.OnScoreUpdated -= OnScoreUpdated;
@@ -54,26 +56,20 @@ public class UiContinuePanel : MonoBehaviour
         currentScore.text = "Score: " + score;
     }
 
-    private void GameStart()
-    {
-        currentScore.gameObject.SetActive(true);
-    }
-
-
     #region Resume Panel 3, 2, 1
-    private void ResumeLevel()
+    private void OnContinueButtonClicked()
     {
+        isContinueUsed = true;
+        //Show Ads..
         OnResumeStart?.Invoke();
-        continueMenuCanvasGroup.alpha = 0;
-        continueMenuCanvasGroup.interactable = false;
-        continueMenuCanvasGroup.blocksRaycasts = false;
+        continueMenuPanel.gameObject.SetActive(false);
         continueButton.gameObject.SetActive(false);
         StartCoroutine(StartResumePanel());
     }
 
     private IEnumerator StartResumePanel()
     {
-        resumePanelCanvasGroup.alpha = 1;
+        resumePanel.gameObject.SetActive(true);
         resumeCountdownText.text = "3";
         resumeCountdownText.transform.DOScale(2, 1);
         yield return new WaitForSeconds(1);
@@ -87,27 +83,25 @@ public class UiContinuePanel : MonoBehaviour
         resumeCountdownText.text = "1";
         resumeCountdownText.transform.DOScale(2, 1);
         yield return new WaitForSeconds(1);
-        resumePanelCanvasGroup.alpha = 0;
+        resumePanel.gameObject.SetActive(false);
         OnResumed?.Invoke();
     }
     #endregion
 
 
     #region Continue Panel
-    private void NoThanks()
+    private void GameStart()
     {
-        ShowRestartMenu();
+        currentScore.gameObject.SetActive(true);
     }
 
     private void GameOver()
     {
         currentScore.gameObject.SetActive(false);
-        score.text = "Score: " + PlayerPrefs.GetInt("score").ToString();
+        score.text = "Score: " + Score.ToString();
         highScore.text = "High Score: " + PlayerPrefs.GetInt("highScore").ToString();
-        continueMenuCanvasGroup.alpha = 1;
-        continueMenuCanvasGroup.interactable = true;
-        continueMenuCanvasGroup.blocksRaycasts = true;
-        if (Score > 1)
+        continueMenuPanel.gameObject.SetActive(true);
+        if (Score > 1 && !isContinueUsed)
         {
             ShowContinueCountdownMenu();
         }
@@ -115,6 +109,11 @@ public class UiContinuePanel : MonoBehaviour
         {
             ShowRestartMenu();
         }
+    }
+
+    private void NoThanksButtonClicked()
+    {
+        ShowRestartMenu();
     }
 
     private void ShowContinueCountdownMenu()
@@ -150,7 +149,7 @@ public class UiContinuePanel : MonoBehaviour
         restartButton.gameObject.SetActive(true);
     }
 
-    private void ResetLevel()
+    private void RestartLevelButtonClicked()
     {
         SceneManager.LoadScene(0);
     }
