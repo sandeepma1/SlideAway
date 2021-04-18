@@ -13,7 +13,7 @@ public class UiStartPanel : MonoBehaviour
 
     private void Start()
     {
-        highScore.text = "High Score: " + PlayerPrefs.GetInt("highScore");
+        highScore.text = "High Score: " + ZPlayerPrefs.GetInt(AppData.keyHighScore);
         mainPanel.SetActive(true);
     }
 

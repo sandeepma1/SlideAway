@@ -1,10 +1,9 @@
-﻿using System;
+﻿using MarchingBytes;
+using System;
 using UnityEngine;
 
 public class PlatformSpawner : MonoBehaviour
 {
-    [SerializeField] private Platform platformPrefab;
-    [SerializeField] private Platform platformDiamondPrefab;
     [SerializeField] private GameObject platform;
     private Vector3 lastPosition;
     private float size;
@@ -13,13 +12,14 @@ public class PlatformSpawner : MonoBehaviour
     {
         BallController.OnGameOver += OnGameOver;
         BallController.OnGameStart += OnGameStart;
+        BallController.OnSpawnPlatform += SpawnPlatform;
     }
 
     private void Start()
     {
         lastPosition = platform.transform.position;
         size = platform.transform.localScale.x;
-        for (int i = 0; i < 10; i++)
+        for (int i = 0; i < 7; i++)
         {
             SpawnPlatform();
         }
@@ -29,16 +29,17 @@ public class PlatformSpawner : MonoBehaviour
     {
         BallController.OnGameOver -= OnGameOver;
         BallController.OnGameStart -= OnGameStart;
+        BallController.OnSpawnPlatform -= SpawnPlatform;
     }
 
     private void OnGameStart()
     {
-        InvokeRepeating("SpawnPlatform", 0.1f, 0.2f);
+        //InvokeRepeating("SpawnPlatform", 0.1f, 0.2f);
     }
 
     private void OnGameOver()
     {
-        CancelInvoke("SpawnPlatform");
+        //CancelInvoke("SpawnPlatform");
     }
 
     private void SpawnPlatform()
@@ -58,28 +59,23 @@ public class PlatformSpawner : MonoBehaviour
     {
         Vector3 pos = lastPosition;
         pos.x += size;
-        Spawn(pos, false);
+        Spawn(pos);
     }
 
     private void SpawnZ()
     {
         Vector3 pos = lastPosition;
         pos.z += size;
-        Spawn(pos, true);
+        Spawn(pos);
     }
 
-    private void Spawn(Vector3 pos, bool isSpawnedLeft)
+    private void Spawn(Vector3 pos)
     {
-        Platform platform;
-        if (UnityEngine.Random.Range(0, 4) < 1)
+        if (UnityEngine.Random.Range(0, 10) < 1)
         {
-            platform = Instantiate(platformDiamondPrefab, pos, Quaternion.identity);
+            EasyObjectPool.instance.GetObjectFromPool("Diamond", pos, Quaternion.identity);
         }
-        else
-        {
-            platform = Instantiate(platformPrefab, pos, Quaternion.identity);
-        }
-        platform.isSpawnedLeft = isSpawnedLeft;
+        EasyObjectPool.instance.GetObjectFromPool("Platform", pos, Quaternion.identity);
         lastPosition = pos;
     }
 }

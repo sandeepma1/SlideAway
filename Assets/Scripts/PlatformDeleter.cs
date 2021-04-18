@@ -1,12 +1,10 @@
-﻿using UnityEngine;
+﻿using MarchingBytes;
+using UnityEngine;
 
 public class PlatformDeleter : MonoBehaviour
 {
-    private void OnTriggerEnter(Collider other)
+    private void OnCollisionEnter(Collision collision)
     {
-        if (!other.gameObject.CompareTag("Ball"))
-        {
-            Destroy(other.gameObject);
-        }
+        EasyObjectPool.instance.ReturnObjectToPool(collision.gameObject);
     }
 }

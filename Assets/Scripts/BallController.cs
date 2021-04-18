@@ -1,50 +1,37 @@
 ﻿using System;
+using System.Collections;
 using UnityEngine;
 
 public class BallController : MonoBehaviour
 {
     public static Action OnGameStart;
     public static Action OnGameOver;
+    public static Action OnSpawnPlatform;
     public static Action<int> OnScoreUpdated;
-    public static Action<Vector3, bool> OnLastDropPosition;
+    public static Action OnAddDiamond;
     [SerializeField] private Transform sphearBallMesh;
     [SerializeField] private Light ballSpotLight;
     [SerializeField] private GameObject particle;
-    [SerializeField] private float fallSpeed;
     [SerializeField] private Material floorMaterial;
+    [SerializeField] private float fallSpeed;
+    [SerializeField] private float speed;
     private bool started;
     private bool gameOver;
     private Rigidbody rb;
     private int score;
-    private Vector3 lastDropPosition;
-    private bool isSpawnedLeft;
     private float scoreHue;
-    [SerializeField] private float speed = 8;
-    private const float minSpeed = 8;
-    private const float maxSpeed = 12;
-    private bool isTurnedLeft;
 
-    private void Awake()
-    {
-        UiContinuePanel.OnResumeStart += OnResumeStart;
-        UiContinuePanel.OnResumed += OnResumed;
-        OnLastDropPosition += LastDropPosition;
-    }
+    private bool isTurnedLeft;
+    private int pos;
+    private int tempPos;
 
     private void Start()
     {
-        speed = minSpeed;
+        speed = AppData.minSpeed;
         rb = GetComponent<Rigidbody>();
         started = false;
         gameOver = false;
         UpdateScoreAndBallSpeed(0);
-    }
-
-    private void OnDestroy()
-    {
-        UiContinuePanel.OnResumeStart -= OnResumeStart;
-        UiContinuePanel.OnResumed -= OnResumed;
-        OnLastDropPosition -= LastDropPosition;
     }
 
     private void Update()
@@ -56,17 +43,7 @@ public class BallController : MonoBehaviour
                 rb.velocity = new Vector3(speed, 0, 0);
                 started = true;
                 OnGameStart?.Invoke();
-            }
-        }
-        else
-        {
-            if (isTurnedLeft)
-            {
-                sphearBallMesh.Rotate(Time.deltaTime * (speed * 100), 0, 0, Space.World);
-            }
-            else
-            {
-                sphearBallMesh.Rotate(0, 0, Time.deltaTime * (speed * -100), Space.World);
+                InvokeRepeating("VeryLateUpdate", 0.1f, 0.1f);
             }
         }
 
@@ -82,10 +59,35 @@ public class BallController : MonoBehaviour
         }
     }
 
-    private void LastDropPosition(Vector3 lastDropPosition, bool isSpawnedLeft)
+    private void LateUpdate()
     {
-        this.isSpawnedLeft = isSpawnedLeft;
-        this.lastDropPosition = lastDropPosition;
+        if (gameOver)
+        {
+            return;
+        }
+        if (started)
+        {
+            if (isTurnedLeft) // Rotate sphere as per direction
+            {
+                sphearBallMesh.Rotate(Time.deltaTime * (speed * 100), 0, 0, Space.World);
+                rb.velocity = new Vector3(0, 0, speed);
+            }
+            else
+            {
+                sphearBallMesh.Rotate(0, 0, Time.deltaTime * (speed * -100), Space.World);
+                rb.velocity = new Vector3(speed, 0, 0);
+            }
+        }
+    }
+
+    private void VeryLateUpdate()
+    {
+        pos = ((int)transform.position.x + (int)transform.position.z) / 2;
+        if (pos > tempPos)
+        {
+            OnSpawnPlatform?.Invoke();
+            tempPos = pos;
+        }
     }
 
     private void GameOver()
@@ -94,38 +96,28 @@ public class BallController : MonoBehaviour
         gameOver = true;
         rb.velocity = new Vector3(0, -fallSpeed, 0);
         ballSpotLight.intensity = 0;
-        if (PlayerPrefs.HasKey("highScore"))
+        if (ZPlayerPrefs.HasKey(AppData.keyHighScore))
         {
-            if (score > PlayerPrefs.GetInt("highScore"))
+            if (score > ZPlayerPrefs.GetInt(AppData.keyHighScore))
             {
-                PlayerPrefs.SetInt("highScore", score);
+                ZPlayerPrefs.SetInt(AppData.keyHighScore, score);
             }
         }
         else
         {
-            PlayerPrefs.SetInt("highScore", score);
+            ZPlayerPrefs.SetInt(AppData.keyHighScore, score);
         }
+        StopCoroutine(OnGameOverCoroutine());
+        StartCoroutine(OnGameOverCoroutine());
     }
 
-    private void OnResumeStart()
+    private IEnumerator OnGameOverCoroutine()
     {
-        rb.velocity = new Vector3(0, 0, 0);
-        gameObject.transform.position = new Vector3(lastDropPosition.x, lastDropPosition.y + 2, lastDropPosition.z);
-    }
-
-    private void OnResumed()
-    {
-        gameOver = false;
-        ballSpotLight.intensity = 1;
-        OnGameStart?.Invoke();
-        if (isSpawnedLeft)
-        {
-            rb.velocity = new Vector3(speed, 0, 0);
-        }
-        else
-        {
-            rb.velocity = new Vector3(0, 0, speed);
-        }
+        yield return new WaitForSeconds(3);
+        rb.velocity = Vector3.zero;
+        print("OnGameOverCoroutine");
+        rb.useGravity = false;
+        transform.position = new Vector3(0, 100, 0);
     }
 
     private void SwitchDirections()
@@ -133,12 +125,10 @@ public class BallController : MonoBehaviour
         if (rb.velocity.z > 0)//right
         {
             isTurnedLeft = false;
-            rb.velocity = new Vector3(speed, 0, 0);
         }
         else if (rb.velocity.x > 0)//left
         {
             isTurnedLeft = true;
-            rb.velocity = new Vector3(0, 0, speed);
         }
     }
 
@@ -146,10 +136,11 @@ public class BallController : MonoBehaviour
     {
         if (collider.CompareTag("Diamond"))
         {
-            GameObject part = Instantiate(particle, collider.gameObject.transform.position, Quaternion.identity);
-            Destroy(collider.gameObject);
-            Destroy(part, 1.0f);
+            GameObject particles = Instantiate(particle, collider.gameObject.transform.position, Quaternion.identity);
+            collider.gameObject.SetActive(false);
+            Destroy(particles, 1.0f);
             UpdateScoreAndBallSpeed(2);
+            OnAddDiamond?.Invoke();
         }
     }
 
@@ -158,10 +149,10 @@ public class BallController : MonoBehaviour
         score += adder;
         OnScoreUpdated?.Invoke(score);
         scoreHue = Clamp0360((float)score) / 360.0f;
-        floorMaterial.color = Color.HSVToRGB(scoreHue, 0.8f, 0.75f);
-        if (speed <= maxSpeed)
+        floorMaterial.color = Color.HSVToRGB(scoreHue, AppData.floorSaturation, AppData.floorLightness);
+        if (speed <= AppData.maxSpeed)
         {
-            speed = ((float)score / 100.0f) + minSpeed;
+            speed = ((float)score / 100.0f) + AppData.minSpeed;
         }
     }
 
