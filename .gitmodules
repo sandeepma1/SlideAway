@@ -1,0 +1,3 @@
+[submodule "Assets/Backbone"]
+	path = Assets/Backbone
+	url = https://sandeepmamdikar@bitbucket.org/poochDeveloper/backbone.git
