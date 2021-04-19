@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class BallController : MonoBehaviour
 {
-    public static Action OnGameStart;
     public static Action OnGameOver;
     public static Action OnSpawnPlatform;
     public static Action<int> OnScoreUpdated;
@@ -25,6 +24,11 @@ public class BallController : MonoBehaviour
     private int pos;
     private int tempPos;
 
+    private void Awake()
+    {
+        UiStartPanel.OnGameStart += OnGameStart;
+    }
+
     private void Start()
     {
         speed = AppData.minSpeed;
@@ -34,19 +38,20 @@ public class BallController : MonoBehaviour
         UpdateScoreAndBallSpeed(0);
     }
 
+    private void OnDestroy()
+    {
+        UiStartPanel.OnGameStart -= OnGameStart;
+    }
+
+    private void OnGameStart()
+    {
+        rb.velocity = new Vector3(speed, 0, 0);
+        started = true;
+        InvokeRepeating("VeryLateUpdate", 0.1f, 0.1f);
+    }
+
     private void Update()
     {
-        if (!started)
-        {
-            if (Input.GetMouseButtonDown(0))
-            {
-                rb.velocity = new Vector3(speed, 0, 0);
-                started = true;
-                OnGameStart?.Invoke();
-                InvokeRepeating("VeryLateUpdate", 0.1f, 0.1f);
-            }
-        }
-
         if (!Physics.Raycast(transform.position, Vector3.down, 1.0f) && !gameOver)
         {
             GameOver();

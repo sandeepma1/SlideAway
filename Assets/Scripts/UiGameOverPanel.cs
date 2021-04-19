@@ -18,7 +18,7 @@ public class UiGameOverPanel : MonoBehaviour
     private void Awake()
     {
         BallController.OnGameOver += GameOver;
-        BallController.OnGameStart += GameStart;
+        UiStartPanel.OnGameStart += GameStart;
         BallController.OnScoreUpdated += OnScoreUpdated;
     }
 
@@ -33,7 +33,7 @@ public class UiGameOverPanel : MonoBehaviour
     {
         restartButton.onClick.RemoveListener(RestartLevelButtonClicked);
         BallController.OnGameOver -= GameOver;
-        BallController.OnGameStart -= GameStart;
+        UiStartPanel.OnGameStart -= GameStart;
         BallController.OnScoreUpdated -= OnScoreUpdated;
     }
 

@@ -11,7 +11,7 @@ public class PlatformSpawner : MonoBehaviour
     private void Awake()
     {
         BallController.OnGameOver += OnGameOver;
-        BallController.OnGameStart += OnGameStart;
+        UiStartPanel.OnGameStart += OnGameStart;
         BallController.OnSpawnPlatform += SpawnPlatform;
     }
 
@@ -28,7 +28,7 @@ public class PlatformSpawner : MonoBehaviour
     private void OnDestroy()
     {
         BallController.OnGameOver -= OnGameOver;
-        BallController.OnGameStart -= OnGameStart;
+        UiStartPanel.OnGameStart -= OnGameStart;
         BallController.OnSpawnPlatform -= SpawnPlatform;
     }
 
@@ -71,7 +71,7 @@ public class PlatformSpawner : MonoBehaviour
 
     private void Spawn(Vector3 pos)
     {
-        if (UnityEngine.Random.Range(0, 10) < 1)
+        if (UnityEngine.Random.Range(0, 2) < 1)
         {
             EasyObjectPool.instance.GetObjectFromPool("Diamond", pos, Quaternion.identity);
         }

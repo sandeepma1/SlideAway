@@ -1,15 +1,11 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
+﻿using UnityEngine;
 using TMPro;
-using System;
 
 public class UserData : MonoBehaviour
 {
     [SerializeField] private TextMeshProUGUI diamondText;
 
-
+    private int diamonds;
     private int Diamonds
     {
         get
@@ -19,11 +15,9 @@ public class UserData : MonoBehaviour
         set
         {
             diamonds = value;
-            ZPlayerPrefs.SetInt(AppData.keyDiamond, diamonds);
             diamondText.text = diamonds.ToString();
         }
     }
-    private int diamonds;
 
     private void Awake()
     {
@@ -44,5 +38,23 @@ public class UserData : MonoBehaviour
     private void OnAddDiamond()
     {
         Diamonds++;
+    }
+
+    private void OnApplicationQuit()
+    {
+        SaveGameUserData();
+    }
+
+    private void OnApplicationPause(bool pause)
+    {
+        if (pause)
+        {
+            SaveGameUserData();
+        }
+    }
+
+    private void SaveGameUserData()
+    {
+        ZPlayerPrefs.SetInt(AppData.keyDiamond, diamonds);
     }
 }

@@ -1,12 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-
-public static class AppData
+﻿public static class AppData
 {
     //Save keys
     public const string keyDiamond = "diamond";
     public const string keyHighScore = "highScore";
+    public const string keyRetries = "retries";
 
     //Ball variables
     public const float minSpeed = 8;

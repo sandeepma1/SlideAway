@@ -12,13 +12,13 @@ public class CameraFollow : MonoBehaviour
     {
         offset = ball.transform.position - transform.position;
         BallController.OnGameOver += OnGameOver;
-        BallController.OnGameStart += OnGameStart;
+        UiStartPanel.OnGameStart += OnGameStart;
     }
 
     private void OnDestroy()
     {
         BallController.OnGameOver -= OnGameOver;
-        BallController.OnGameStart -= OnGameStart;
+        UiStartPanel.OnGameStart -= OnGameStart;
     }
 
     private void OnGameStart()
