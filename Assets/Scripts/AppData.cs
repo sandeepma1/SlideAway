@@ -1,9 +1,15 @@
 ﻿public static class AppData
 {
-    //Save keys
-    public const string keyDiamond = "diamond";
-    public const string keyHighScore = "highScore";
-    public const string keyRetries = "retries";
+    //Main variables
+    public static int currentScore;
+    public static int highScore;
+    public static int retries;
+    public static int gems;
+
+    //Achivements
+    public const int achievementValue1 = 50;
+    public const int achievementValue2 = 100;
+    public const int achievementValue3 = 250;
 
     //Ball variables
     public const float minSpeed = 8;

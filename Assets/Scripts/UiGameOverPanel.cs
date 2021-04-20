@@ -11,21 +11,12 @@ public class UiGameOverPanel : MonoBehaviour
     [SerializeField] private GameObject mainPanel;
     [SerializeField] private Button restartButton;
     [SerializeField] private TextMeshProUGUI score;
-    [SerializeField] private TextMeshProUGUI currentScore;
     [SerializeField] private TextMeshProUGUI highScore;
-    private int Score;
 
     private void Awake()
     {
         BallController.OnGameOver += GameOver;
-        UiStartPanel.OnGameStart += GameStart;
-        BallController.OnScoreUpdated += OnScoreUpdated;
-    }
-
-    private void Start()
-    {
         restartButton.onClick.AddListener(RestartLevelButtonClicked);
-        currentScore.gameObject.SetActive(false);
         mainPanel.SetActive(false);
     }
 
@@ -33,27 +24,12 @@ public class UiGameOverPanel : MonoBehaviour
     {
         restartButton.onClick.RemoveListener(RestartLevelButtonClicked);
         BallController.OnGameOver -= GameOver;
-        UiStartPanel.OnGameStart -= GameStart;
-        BallController.OnScoreUpdated -= OnScoreUpdated;
-    }
-
-    private void OnScoreUpdated(int score)
-    {
-        Score = score;
-        currentScore.text = "Score: " + score;
-    }
-
-    #region Continue Panel
-    private void GameStart()
-    {
-        currentScore.gameObject.SetActive(true);
     }
 
     private void GameOver()
     {
-        currentScore.gameObject.SetActive(false);
-        score.text = "Score: " + Score.ToString();
-        highScore.text = "High Score: " + ZPlayerPrefs.GetInt(AppData.keyHighScore).ToString();
+        score.text = "Score: " + AppData.currentScore.ToString();
+        highScore.text = "High Score: " + AppData.highScore.ToString();
         mainPanel.SetActive(true);
     }
 
@@ -61,5 +37,4 @@ public class UiGameOverPanel : MonoBehaviour
     {
         SceneManager.LoadScene(0);
     }
-    #endregion
 }

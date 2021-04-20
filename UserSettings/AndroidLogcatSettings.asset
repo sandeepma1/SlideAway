@@ -3,7 +3,7 @@
     "m_SelectedPackage": {
         "deviceId": "16e3121d",
         "name": "com.bronz.slideway",
-        "processId": 23611,
+        "processId": 23696,
         "exited": false
     },
     "m_SelectedPriority": 0,
@@ -17,61 +17,49 @@
         {
             "deviceId": "16e3121d",
             "name": "com.bronz.slideway",
-            "processId": 11203,
+            "processId": 16804,
             "exited": true
         },
         {
             "deviceId": "16e3121d",
             "name": "com.bronz.slideway",
-            "processId": 12166,
+            "processId": 17396,
             "exited": true
         },
         {
             "deviceId": "16e3121d",
             "name": "com.bronz.slideway",
-            "processId": 12476,
+            "processId": 19314,
             "exited": true
         },
         {
             "deviceId": "16e3121d",
             "name": "com.bronz.slideway",
-            "processId": 13150,
+            "processId": 19624,
             "exited": true
         },
         {
             "deviceId": "16e3121d",
             "name": "com.bronz.slideway",
-            "processId": 13901,
+            "processId": 20250,
             "exited": true
         },
         {
             "deviceId": "16e3121d",
             "name": "com.bronz.slideway",
-            "processId": 14114,
+            "processId": 20869,
             "exited": false
         },
         {
             "deviceId": "16e3121d",
             "name": "com.bronz.slideway",
-            "processId": 19372,
+            "processId": 22102,
             "exited": false
         },
         {
             "deviceId": "16e3121d",
             "name": "com.bronz.slideway",
-            "processId": 20289,
-            "exited": false
-        },
-        {
-            "deviceId": "16e3121d",
-            "name": "com.bronz.slideway",
-            "processId": 21946,
-            "exited": false
-        },
-        {
-            "deviceId": "16e3121d",
-            "name": "com.bronz.slideway",
-            "processId": 23611,
+            "processId": 23696,
             "exited": false
         }
     ],

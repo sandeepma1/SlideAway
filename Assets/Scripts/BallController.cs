@@ -6,8 +6,8 @@ public class BallController : MonoBehaviour
 {
     public static Action OnGameOver;
     public static Action OnSpawnPlatform;
-    public static Action<int> OnScoreUpdated;
-    public static Action OnAddDiamond;
+    public static Action OnUpdateScore;
+    public static Action OnUpdateGems;
     [SerializeField] private Transform sphearBallMesh;
     [SerializeField] private Light ballSpotLight;
     [SerializeField] private GameObject particle;
@@ -17,7 +17,6 @@ public class BallController : MonoBehaviour
     private bool started;
     private bool gameOver;
     private Rigidbody rb;
-    private int score;
     private float scoreHue;
 
     private bool isTurnedLeft;
@@ -35,6 +34,7 @@ public class BallController : MonoBehaviour
         rb = GetComponent<Rigidbody>();
         started = false;
         gameOver = false;
+        AppData.currentScore = 0;
         UpdateScoreAndBallSpeed(0);
     }
 
@@ -101,17 +101,7 @@ public class BallController : MonoBehaviour
         gameOver = true;
         rb.velocity = new Vector3(0, -fallSpeed, 0);
         ballSpotLight.intensity = 0;
-        if (ZPlayerPrefs.HasKey(AppData.keyHighScore))
-        {
-            if (score > ZPlayerPrefs.GetInt(AppData.keyHighScore))
-            {
-                ZPlayerPrefs.SetInt(AppData.keyHighScore, score);
-            }
-        }
-        else
-        {
-            ZPlayerPrefs.SetInt(AppData.keyHighScore, score);
-        }
+
         StopCoroutine(OnGameOverCoroutine());
         StartCoroutine(OnGameOverCoroutine());
     }
@@ -120,7 +110,6 @@ public class BallController : MonoBehaviour
     {
         yield return new WaitForSeconds(3);
         rb.velocity = Vector3.zero;
-        print("OnGameOverCoroutine");
         rb.useGravity = false;
         transform.position = new Vector3(0, 100, 0);
     }
@@ -145,20 +134,43 @@ public class BallController : MonoBehaviour
             collider.gameObject.SetActive(false);
             Destroy(particles, 1.0f);
             UpdateScoreAndBallSpeed(2);
-            OnAddDiamond?.Invoke();
+            AppData.gems++;
+            OnUpdateGems?.Invoke();
         }
     }
 
     private void UpdateScoreAndBallSpeed(int adder)
     {
-        score += adder;
-        OnScoreUpdated?.Invoke(score);
-        scoreHue = Clamp0360((float)score) / 360.0f;
+        AppData.currentScore += adder;
+        OnUpdateScore?.Invoke();
+        CheckAchievements();
+        //Change color of floor
+        scoreHue = Clamp0360((float)AppData.currentScore) / 360.0f;
         floorMaterial.color = Color.HSVToRGB(scoreHue, AppData.floorSaturation, AppData.floorLightness);
+        //Change speed of ball with speed
         if (speed <= AppData.maxSpeed)
         {
-            speed = ((float)score / 100.0f) + AppData.minSpeed;
+            speed = ((float)AppData.currentScore / 100.0f) + AppData.minSpeed;
         }
+    }
+
+    private void CheckAchievements()
+    {
+        switch (AppData.currentScore)
+        {
+            case int n when (n >= AppData.achievementValue1 && n <= AppData.achievementValue1 + 3):
+                GpsManager.Instance.UnlockAchievement(GPGSIds.achievement_first_50);
+                break;
+            case int n when (n >= AppData.achievementValue2 && n <= AppData.achievementValue2 + 3):
+                GpsManager.Instance.UnlockAchievement(GPGSIds.achievement_century_100);
+                break;
+            case int n when (n >= AppData.achievementValue3 && n <= AppData.achievementValue3 + 3):
+                GpsManager.Instance.UnlockAchievement(GPGSIds.achievement_next_250);
+                break;
+            default:
+                break;
+        }
+
     }
 
     public float Clamp0360(float eulerAngles)

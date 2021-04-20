@@ -7,6 +7,7 @@ public class PlatformSpawner : MonoBehaviour
     [SerializeField] private GameObject platform;
     private Vector3 lastPosition;
     private float size;
+    private int gemsSpawnRate = 10; // higher value, less gems
 
     private void Awake()
     {
@@ -71,7 +72,7 @@ public class PlatformSpawner : MonoBehaviour
 
     private void Spawn(Vector3 pos)
     {
-        if (UnityEngine.Random.Range(0, 2) < 1)
+        if (UnityEngine.Random.Range(0, gemsSpawnRate) < 1)
         {
             EasyObjectPool.instance.GetObjectFromPool("Diamond", pos, Quaternion.identity);
         }
