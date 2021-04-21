@@ -7,7 +7,6 @@ public class BallController : MonoBehaviour
     public static Action OnGameOver;
     public static Action OnSpawnPlatform;
     public static Action OnUpdateScore;
-    public static Action OnUpdateGems;
     [SerializeField] private Transform sphearBallMesh;
     [SerializeField] private Light ballSpotLight;
     [SerializeField] private GameObject particle;
@@ -130,12 +129,9 @@ public class BallController : MonoBehaviour
     {
         if (collider.CompareTag("Diamond"))
         {
-            GameObject particles = Instantiate(particle, collider.gameObject.transform.position, Quaternion.identity);
             collider.gameObject.SetActive(false);
-            Destroy(particles, 1.0f);
             UpdateScoreAndBallSpeed(2);
-            AppData.gems++;
-            OnUpdateGems?.Invoke();
+            UiGemsSpawnCanvas.OnSpawnGem?.Invoke(transform);
         }
     }
 

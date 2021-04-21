@@ -5,9 +5,9 @@ using UnityEngine;
 public class PlatformSpawner : MonoBehaviour
 {
     [SerializeField] private GameObject platform;
+    [SerializeField] private int gemsSpawnRate = 10; // higher value, less gems
     private Vector3 lastPosition;
     private float size;
-    private int gemsSpawnRate = 10; // higher value, less gems
 
     private void Awake()
     {

@@ -12,8 +12,8 @@ public class UiUserDataHud : MonoBehaviour
     {
         UiStartPanel.OnGameStart += OnGameStart;
         BallController.OnGameOver += OnGameOver;
-        BallController.OnUpdateGems += UpdateGems;
         BallController.OnUpdateScore += UpdateCurrentScore;
+        UiGemsSpawnCanvas.OnUpdateGems += UpdateGems;
         GpsManager.OnCloudDataLoaded += OnCloudDataLoaded;
         scoreGo.SetActive(false);
         UpdateGems();
@@ -23,8 +23,8 @@ public class UiUserDataHud : MonoBehaviour
     {
         UiStartPanel.OnGameStart -= OnGameStart;
         BallController.OnGameOver -= OnGameOver;
-        BallController.OnUpdateGems -= UpdateGems;
         BallController.OnUpdateScore -= UpdateCurrentScore;
+        UiGemsSpawnCanvas.OnUpdateGems -= UpdateGems;
         GpsManager.OnCloudDataLoaded -= OnCloudDataLoaded;
     }
 
