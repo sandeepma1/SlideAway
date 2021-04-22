@@ -7,17 +7,16 @@ public class BallController : MonoBehaviour
     public static Action OnGameOver;
     public static Action OnSpawnPlatform;
     public static Action OnUpdateScore;
-    [SerializeField] private Transform sphearBallMesh;
+    [SerializeField] private Renderer ballMeshRenderer;
     [SerializeField] private Light ballSpotLight;
     [SerializeField] private GameObject particle;
     [SerializeField] private Material floorMaterial;
     [SerializeField] private float fallSpeed;
-    [SerializeField] private float speed;
+    private float speed;
     private bool started;
     private bool gameOver;
     private Rigidbody rb;
     private float scoreHue;
-
     private bool isTurnedLeft;
     private int pos;
     private int tempPos;
@@ -25,6 +24,7 @@ public class BallController : MonoBehaviour
     private void Awake()
     {
         UiStartPanel.OnGameStart += OnGameStart;
+        UiShopCanvas.OnBallMaterialChanged += OnBallMaterialChanged;
     }
 
     private void Start()
@@ -40,6 +40,7 @@ public class BallController : MonoBehaviour
     private void OnDestroy()
     {
         UiStartPanel.OnGameStart -= OnGameStart;
+        UiShopCanvas.OnBallMaterialChanged -= OnBallMaterialChanged;
     }
 
     private void OnGameStart()
@@ -73,12 +74,12 @@ public class BallController : MonoBehaviour
         {
             if (isTurnedLeft) // Rotate sphere as per direction
             {
-                sphearBallMesh.Rotate(Time.deltaTime * (speed * 100), 0, 0, Space.World);
+                ballMeshRenderer.transform.Rotate(Time.deltaTime * (speed * 100), 0, 0, Space.World);
                 rb.velocity = new Vector3(0, 0, speed);
             }
             else
             {
-                sphearBallMesh.Rotate(0, 0, Time.deltaTime * (speed * -100), Space.World);
+                ballMeshRenderer.transform.Rotate(0, 0, Time.deltaTime * (speed * -100), Space.World);
                 rb.velocity = new Vector3(speed, 0, 0);
             }
         }
@@ -177,5 +178,10 @@ public class BallController : MonoBehaviour
             result += 360f;
         }
         return result;
+    }
+
+    private void OnBallMaterialChanged(Material material)
+    {
+        ballMeshRenderer.material = material;
     }
 }

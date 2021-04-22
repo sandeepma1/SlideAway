@@ -61,6 +61,7 @@ public class UiStartPanel : MonoBehaviour
         achievementsButton.onClick.AddListener(OnAchievementsButtonClicked);
         shopButton.onClick.AddListener(() => OnShopButtonPressed?.Invoke());
         settingsButton.onClick.AddListener(() => OnSettingsButtonPressed?.Invoke());
+        reviewAppButton.onClick.AddListener(() => OnReviewAppButtonPressed?.Invoke());
     }
 
     private void OnDestroy()
@@ -72,6 +73,7 @@ public class UiStartPanel : MonoBehaviour
         achievementsButton.onClick.RemoveListener(OnAchievementsButtonClicked);
         shopButton.onClick.RemoveListener(() => OnShopButtonPressed?.Invoke());
         settingsButton.onClick.RemoveListener(() => OnSettingsButtonPressed?.Invoke());
+        reviewAppButton.onClick.RemoveListener(() => OnReviewAppButtonPressed?.Invoke());
     }
 
     private IEnumerator GetAllPanelSizes()

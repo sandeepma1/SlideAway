@@ -3,7 +3,7 @@
     "m_SelectedPackage": {
         "deviceId": "16e3121d",
         "name": "com.bronz.slideway",
-        "processId": 13636,
+        "processId": 22368,
         "exited": false
     },
     "m_SelectedPriority": 0,
@@ -16,86 +16,50 @@
         },
         {
             "deviceId": "16e3121d",
-            "name": "com.bronz.slideway",
-            "processId": 16804,
+            "name": "com.ketchapp.knifehit",
+            "processId": 17353,
             "exited": true
         },
         {
             "deviceId": "16e3121d",
             "name": "com.bronz.slideway",
-            "processId": 17396,
+            "processId": 8413,
             "exited": true
         },
         {
             "deviceId": "16e3121d",
             "name": "com.bronz.slideway",
-            "processId": 19314,
+            "processId": 31883,
             "exited": true
         },
         {
             "deviceId": "16e3121d",
             "name": "com.bronz.slideway",
-            "processId": 19624,
+            "processId": 32584,
             "exited": true
         },
         {
             "deviceId": "16e3121d",
             "name": "com.bronz.slideway",
-            "processId": 20250,
+            "processId": 1614,
             "exited": true
         },
         {
             "deviceId": "16e3121d",
-            "name": "com.bronz.slideway",
-            "processId": 20869,
+            "name": "com.ketchapp.dunkshot",
+            "processId": 10220,
             "exited": false
         },
         {
             "deviceId": "16e3121d",
             "name": "com.bronz.slideway",
-            "processId": 22102,
+            "processId": 21397,
             "exited": false
         },
         {
             "deviceId": "16e3121d",
             "name": "com.bronz.slideway",
-            "processId": 23696,
-            "exited": false
-        },
-        {
-            "deviceId": "16e3121d",
-            "name": "com.bronz.slideway",
-            "processId": 12440,
-            "exited": false
-        },
-        {
-            "deviceId": "16e3121d",
-            "name": "com.bronz.slideway",
-            "processId": 8350,
-            "exited": false
-        },
-        {
-            "deviceId": "16e3121d",
-            "name": "com.bronz.slideway",
-            "processId": 10025,
-            "exited": false
-        },
-        {
-            "deviceId": "16e3121d",
-            "name": "com.bronz.slideway",
-            "processId": 12456,
-            "exited": false
-        },
-        {
-            "deviceId": "16e3121d",
-            "name": "com.bronz.slideway",
-            "processId": 13160,
-            "exited": false
-        },
-        {
-            "deviceId": "16e3121d",
-            "name": "com.bronz.slideway",
-            "processId": 13636,
+            "processId": 22368,
             "exited": false
         }
     ],

@@ -18,4 +18,12 @@
     //Misc
     public const float floorSaturation = 0.8f;
     public const float floorLightness = 0.75f;
+
+    public const string dbPath = "DB/ShopDB";
+    public const string gemsBallMatPath = "BallMaterials/GemsBall";
+    public const string AdsBallMatPath = "BallMaterials/AdsBall";
+    public const string paidBallMatPath = "BallMaterials/PaidBall";
+
+    public const string gemIcon = "<sprite=0>";
+    public const string adIcon = "<sprite=1>";
 }
