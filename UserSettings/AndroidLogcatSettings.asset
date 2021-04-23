@@ -3,7 +3,7 @@
     "m_SelectedPackage": {
         "deviceId": "16e3121d",
         "name": "com.bronz.slideway",
-        "processId": 22368,
+        "processId": 17957,
         "exited": false
     },
     "m_SelectedPriority": 0,
@@ -13,24 +13,6 @@
             "name": "com.mi.android.globallauncher",
             "processId": 5952,
             "exited": false
-        },
-        {
-            "deviceId": "16e3121d",
-            "name": "com.ketchapp.knifehit",
-            "processId": 17353,
-            "exited": true
-        },
-        {
-            "deviceId": "16e3121d",
-            "name": "com.bronz.slideway",
-            "processId": 8413,
-            "exited": true
-        },
-        {
-            "deviceId": "16e3121d",
-            "name": "com.bronz.slideway",
-            "processId": 31883,
-            "exited": true
         },
         {
             "deviceId": "16e3121d",
@@ -48,18 +30,24 @@
             "deviceId": "16e3121d",
             "name": "com.ketchapp.dunkshot",
             "processId": 10220,
-            "exited": false
+            "exited": true
         },
         {
             "deviceId": "16e3121d",
             "name": "com.bronz.slideway",
             "processId": 21397,
-            "exited": false
+            "exited": true
         },
         {
             "deviceId": "16e3121d",
             "name": "com.bronz.slideway",
             "processId": 22368,
+            "exited": true
+        },
+        {
+            "deviceId": "16e3121d",
+            "name": "com.bronz.slideway",
+            "processId": 17957,
             "exited": false
         }
     ],

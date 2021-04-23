@@ -1,8 +1,7 @@
-﻿using System;
-using System.Collections;
-using UnityEngine;
+﻿using UnityEngine;
+using System;
 
-public class BallController : MonoBehaviour
+public class Player : MonoBehaviour
 {
     public static Action OnGameOver;
     public static Action OnSpawnPlatform;
@@ -10,8 +9,9 @@ public class BallController : MonoBehaviour
     [SerializeField] private Renderer ballMeshRenderer;
     [SerializeField] private Light ballSpotLight;
     [SerializeField] private Material floorMaterial;
+    //[SerializeField] private float fallSpeed;
     private float speed;
-    private bool isGameStarted;
+    [SerializeField] private bool started;
     private float scoreHue;
     private bool isTurnedLeft;
     private bool isDead;
@@ -33,7 +33,7 @@ public class BallController : MonoBehaviour
     private void Start()
     {
         speed = AppData.minSpeed;
-        isGameStarted = false;
+        started = false;
         AppData.currentScore = 0;
         UpdateScoreAndBallSpeed(0);
         isDead = false;
@@ -43,50 +43,45 @@ public class BallController : MonoBehaviour
 
     private void Update()
     {
-        if (!isGameStarted)
-        {
-            return;
-        }
         if (Input.GetMouseButtonDown(0) && !isDead)
         {
             UpdateScoreAndBallSpeed(1);
             if (dir == Vector3.forward)
             {
                 dir = Vector3.left;
-                isTurnedLeft = false;
             }
             else
             {
                 dir = Vector3.forward;
-                isTurnedLeft = true;
             }
         }
-        transform.Translate(dir * (speed * Time.deltaTime));
+        float amountToMove = speed * Time.deltaTime;
+        transform.Translate(dir * amountToMove);
     }
 
     private void FixedUpdate()
     {
         if (transform.position.y < (playerYPos))
         {
-            if (!isDead)
-            {
-                isDead = true;
-                GameOver();
-            }
+            GameOver();
         }
     }
 
     private void LateUpdate()
     {
-        if (isGameStarted)
+        //if (gameOver)
+        //{
+        //    return;
+        //}
+        if (started)
         {
             if (isTurnedLeft) // Rotate sphere as per direction
             {
-                ballMeshRenderer.transform.Rotate(Time.deltaTime * (speed * 120), 0, 0, Space.World);
+                ballMeshRenderer.transform.Rotate(Time.deltaTime * (speed * 100), 0, 0, Space.World);
             }
             else
             {
-                ballMeshRenderer.transform.Rotate(0, 0, Time.deltaTime * (speed * 120), Space.World);
+                ballMeshRenderer.transform.Rotate(0, 0, Time.deltaTime * (speed * -100), Space.World);
             }
         }
     }
@@ -103,12 +98,12 @@ public class BallController : MonoBehaviour
 
     private void OnGameStart()
     {
-        isGameStarted = true;
-        dir = Vector3.left;
+        started = true;
     }
 
     private void GameOver()
     {
+        isDead = true;
         OnGameOver?.Invoke();
         ballSpotLight.intensity = 0;
     }
@@ -160,4 +155,5 @@ public class BallController : MonoBehaviour
     {
         ballMeshRenderer.material = material;
     }
+
 }

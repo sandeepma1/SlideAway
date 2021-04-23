@@ -8,8 +8,8 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] private float lerpRate;
     private bool gameOver = false;
     private Vector3 offset;
-    private const float normalYPos = 20;
-    private const float shopYPos = 13;
+    private const float normalYPos = 17;
+    private const float shopYPos = 9;
     private const float animSpeed = 0.25f;
 
     private void Awake()

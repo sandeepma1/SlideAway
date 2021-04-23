@@ -52,6 +52,6 @@ public class UiUserDataHud : MonoBehaviour
 
     private void UpdateGems()
     {
-        gemsText.text = AppData.gems.ToString();
+        gemsText.text = AppData.gems + AppData.gemIcon;
     }
 }

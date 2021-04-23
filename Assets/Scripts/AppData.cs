@@ -12,8 +12,11 @@
     public const int achievementValue3 = 250;
 
     //Ball variables
-    public const float minSpeed = 8;
-    public const float maxSpeed = 12;
+    public const float minSpeed = 12;
+    public const float maxSpeed = 18;
+
+    //Tile Manager
+    public const int gemSpawnRate = 10;//higher is less spawn
 
     //Misc
     public const float floorSaturation = 0.8f;
