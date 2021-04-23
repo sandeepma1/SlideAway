@@ -1,5 +1,4 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 using DG.Tweening;
 
 public class CameraFollow : MonoBehaviour
@@ -8,22 +7,26 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] private float lerpRate;
     private bool gameOver = false;
     private Vector3 offset;
+    private Camera mainCamera;
     private const float normalYPos = 17;
-    private const float shopYPos = 9;
+    private const float shopYPos = 10;
+    private const float normalZoom = 15;
+    private const float shopZoom = 9;
     private const float animSpeed = 0.25f;
 
     private void Awake()
     {
+        mainCamera = GetComponent<Camera>();
         offset = ball.transform.position - transform.position;
         BallController.OnGameOver += OnGameOver;
-        UiStartPanel.OnGameStart += OnGameStart;
+        UiStartCanvas.OnGameStart += OnGameStart;
         UiShopCanvas.OnIsShopMenuVisible += OnIsShopMenuVisible;
     }
 
     private void OnDestroy()
     {
         BallController.OnGameOver -= OnGameOver;
-        UiStartPanel.OnGameStart -= OnGameStart;
+        UiStartCanvas.OnGameStart -= OnGameStart;
         UiShopCanvas.OnIsShopMenuVisible -= OnIsShopMenuVisible;
     }
 
@@ -43,10 +46,12 @@ public class CameraFollow : MonoBehaviour
         gameOver = isVisible;
         if (isVisible)
         {
+            mainCamera.DOOrthoSize(shopZoom, animSpeed);
             transform.DOMoveY(shopYPos, animSpeed);
         }
         else
         {
+            mainCamera.DOOrthoSize(normalZoom, animSpeed);
             transform.DOMoveY(normalYPos, animSpeed);
         }
     }

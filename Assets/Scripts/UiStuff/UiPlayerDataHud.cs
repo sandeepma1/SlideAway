@@ -2,7 +2,7 @@
 using TMPro;
 using System;
 
-public class UiUserDataHud : MonoBehaviour
+public class UiPlayerDataHud : MonoBehaviour
 {
     [SerializeField] private GameObject scoreGo;
     [SerializeField] private TextMeshProUGUI currentScore;
@@ -10,32 +10,31 @@ public class UiUserDataHud : MonoBehaviour
 
     private void Awake()
     {
-        UiStartPanel.OnGameStart += OnGameStart;
+        PlayerDataManager.OnPlayerDataLoaded += OnPlayerDataLoaded;
+        UiStartCanvas.OnGameStart += OnGameStart;
         BallController.OnGameOver += OnGameOver;
         BallController.OnUpdateScore += UpdateCurrentScore;
         UiGemsSpawnCanvas.OnUpdateGems += UpdateGems;
-        GpsManager.OnCloudDataLoaded += OnCloudDataLoaded;
         scoreGo.SetActive(false);
         UpdateGems();
     }
 
     private void OnDestroy()
     {
-        UiStartPanel.OnGameStart -= OnGameStart;
+        PlayerDataManager.OnPlayerDataLoaded -= OnPlayerDataLoaded;
+        UiStartCanvas.OnGameStart -= OnGameStart;
         BallController.OnGameOver -= OnGameOver;
         BallController.OnUpdateScore -= UpdateCurrentScore;
         UiGemsSpawnCanvas.OnUpdateGems -= UpdateGems;
-        GpsManager.OnCloudDataLoaded -= OnCloudDataLoaded;
     }
 
-    private void OnCloudDataLoaded(string obj)
+    private void OnPlayerDataLoaded()
     {
         UpdateGems();
     }
 
     private void OnGameStart()
     {
-        //AppData.currentScore = 0;
         UpdateCurrentScore();
         scoreGo.SetActive(true);
     }
@@ -52,6 +51,6 @@ public class UiUserDataHud : MonoBehaviour
 
     private void UpdateGems()
     {
-        gemsText.text = AppData.gems + AppData.gemIcon;
+        gemsText.text = PlayerDataManager.Instance.GetGems().ToString();
     }
 }

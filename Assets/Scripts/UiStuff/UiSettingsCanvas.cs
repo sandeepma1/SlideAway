@@ -7,6 +7,8 @@ using System;
 
 public class UiSettingsCanvas : MonoBehaviour
 {
+    public static Action<bool> isSoundEnabled;
+    public static Action<bool> isVibrateEnabled;
     [SerializeField] private Button closeButton;
     [SerializeField] private Button closeButtonBG;
     [SerializeField] private RectTransform mainPanelRect;
@@ -17,31 +19,39 @@ public class UiSettingsCanvas : MonoBehaviour
 
     private void Awake()
     {
+        PlayerDataManager.OnPlayerDataLoaded += OnPlayerDataLoaded;
         closeButton.onClick.AddListener(OnCloseButtonClicked);
         closeButtonBG.onClick.AddListener(OnCloseButtonClicked);
         soundToggle.onValueChanged.AddListener(OnSoundToggle);
         vibrateToggle.onValueChanged.AddListener(OnVibrateToggle);
-        UiStartPanel.OnSettingsButtonPressed += OnSettingsButtonPressed;
+        UiStartCanvas.OnSettingsButtonPressed += OnSettingsButtonPressed;
         StartCoroutine(GetRectHeight());
     }
 
     private void OnDestroy()
     {
+        PlayerDataManager.OnPlayerDataLoaded -= OnPlayerDataLoaded;
         closeButton.onClick.RemoveListener(OnCloseButtonClicked);
         closeButtonBG.onClick.RemoveListener(OnCloseButtonClicked);
         soundToggle.onValueChanged.RemoveListener(OnSoundToggle);
         vibrateToggle.onValueChanged.RemoveListener(OnVibrateToggle);
-        UiStartPanel.OnSettingsButtonPressed -= OnSettingsButtonPressed;
+        UiStartCanvas.OnSettingsButtonPressed -= OnSettingsButtonPressed;
+    }
+
+    private void OnPlayerDataLoaded()
+    {
+        soundToggle.isOn = !PlayerDataManager.Instance.IsSoundEnabled;
+        vibrateToggle.isOn = !PlayerDataManager.Instance.IsVibrateEnabled;
     }
 
     private void OnSoundToggle(bool isOn)
     {
-        print("sound " + !isOn);
+        PlayerDataManager.Instance.IsSoundEnabled = !isOn;
     }
 
     private void OnVibrateToggle(bool isOn)
     {
-        print("Vibrate " + !isOn);
+        PlayerDataManager.Instance.IsVibrateEnabled = !isOn;
     }
 
     private IEnumerator GetRectHeight()
@@ -64,14 +74,14 @@ public class UiSettingsCanvas : MonoBehaviour
 
     private void ShowSettingsMenu()
     {
-        UiStartPanel.OnToggleUiStartPanel?.Invoke(false);
+        UiStartCanvas.OnToggleUiStartPanel?.Invoke(false);
         mainPanelRect.gameObject.SetActive(true);
         mainPanelRect.DOAnchorPosY(0, animSpeed).OnComplete(() => closeButtonBG.gameObject.SetActive(true));
     }
 
     private void HideSettingsMenu()
     {
-        UiStartPanel.OnToggleUiStartPanel?.Invoke(true);
+        UiStartCanvas.OnToggleUiStartPanel?.Invoke(true);
         closeButtonBG.gameObject.SetActive(false);
         mainPanelRect.DOAnchorPosY(-rectHeight, animSpeed)
             .OnComplete(() => mainPanelRect.gameObject.SetActive(false));

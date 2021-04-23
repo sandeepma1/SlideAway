@@ -4,7 +4,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System;
 
-public class UiGameOverPanel : MonoBehaviour
+public class UiGameOverCanvas : MonoBehaviour
 {
     public static Action OnResumeStart;
     public static Action OnResumed;
@@ -29,7 +29,7 @@ public class UiGameOverPanel : MonoBehaviour
     private void GameOver()
     {
         score.text = "Score: " + AppData.currentScore.ToString();
-        highScore.text = "High Score: " + AppData.highScore.ToString();
+        highScore.text = "High Score: " + PlayerDataManager.Instance.GetHighScore().ToString();
         mainPanel.SetActive(true);
     }
 

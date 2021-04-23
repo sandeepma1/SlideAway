@@ -7,6 +7,8 @@ public class BallController : MonoBehaviour
     public static Action OnGameOver;
     public static Action OnSpawnPlatform;
     public static Action OnUpdateScore;
+    public static Action OnBallSwitchDirection;
+    public static Action OnBallGemTouched;
     [SerializeField] private Renderer ballMeshRenderer;
     [SerializeField] private Light ballSpotLight;
     [SerializeField] private Material floorMaterial;
@@ -20,13 +22,13 @@ public class BallController : MonoBehaviour
 
     private void Awake()
     {
-        UiStartPanel.OnGameStart += OnGameStart;
+        UiStartCanvas.OnGameStart += OnGameStart;
         UiShopCanvas.OnBallMaterialChanged += OnBallMaterialChanged;
     }
 
     private void OnDestroy()
     {
-        UiStartPanel.OnGameStart -= OnGameStart;
+        UiStartCanvas.OnGameStart -= OnGameStart;
         UiShopCanvas.OnBallMaterialChanged -= OnBallMaterialChanged;
     }
 
@@ -49,6 +51,7 @@ public class BallController : MonoBehaviour
         }
         if (Input.GetMouseButtonDown(0) && !isDead)
         {
+            OnBallSwitchDirection?.Invoke();
             UpdateScoreAndBallSpeed(1);
             if (dir == Vector3.forward)
             {
@@ -95,6 +98,7 @@ public class BallController : MonoBehaviour
     {
         if (other.CompareTag("Pickup"))
         {
+            OnBallGemTouched?.Invoke();
             other.gameObject.SetActive(false);
             UpdateScoreAndBallSpeed(2);
             UiGemsSpawnCanvas.OnSpawnGem?.Invoke(transform);

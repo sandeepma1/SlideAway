@@ -5,7 +5,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 
-public class UiStartPanel : MonoBehaviour
+public class UiStartCanvas : MonoBehaviour
 {
     public static Action<bool> OnToggleUiStartPanel;
     public static Action OnGameStart;
@@ -13,7 +13,6 @@ public class UiStartPanel : MonoBehaviour
     public static Action OnSettingsButtonPressed;
     public static Action OnLeaderboardButtonPressed;
     public static Action OnAchievementsButtonPressed;
-    public static Action OnReviewAppButtonPressed;
     public static Action OnSoundTogglePressed;
     public static Action OnVibrateTogglePressed;
     public static Action OnShopButtonPressed;
@@ -22,6 +21,7 @@ public class UiStartPanel : MonoBehaviour
     public static Action OnInstagramButtonPressed;
     public static Action OnTwitterButtonPressed;
 
+    [SerializeField] private BoxCollider rewardsBoxCollider;
     [SerializeField] private Button tapToStartButton;
     [Space(10)]
     [SerializeField] private GameObject mainPanel;
@@ -40,7 +40,11 @@ public class UiStartPanel : MonoBehaviour
     [SerializeField] private Button settingsButton;
     [SerializeField] private Button shopButton;
     [SerializeField] private Button dailyRewardsButton;
+    [SerializeField] private TextMeshProUGUI dailyRewardsText;
 
+
+    [SerializeField] private bool updateRewardTimer = false;
+    [SerializeField] private TimeSpan rewardTimeSpan;
     private float topHideYPos;
     private float leftHideXPos;
     private float rightHideXPos;
@@ -49,31 +53,39 @@ public class UiStartPanel : MonoBehaviour
     private void Awake()
     {
         OnToggleUiStartPanel += ToggleUiStartPanel;
-        GpsManager.OnCloudDataLoaded += OnCloudDataLoaded;
+        PlayerDataManager.OnPlayerDataLoaded += OnPlayerDataLoaded;
     }
 
     private void Start()
     {
         StartCoroutine(GetAllPanelSizes());
-        UpdateRetriesHighScore();
         tapToStartButton.onClick.AddListener(OnTapToStartButtonClicked);
         leaderboardButton.onClick.AddListener(OnLeaderBoardButtonClicked);
         achievementsButton.onClick.AddListener(OnAchievementsButtonClicked);
+        dailyRewardsButton.onClick.AddListener(OnRewardsButtonPressed);
         shopButton.onClick.AddListener(() => OnShopButtonPressed?.Invoke());
         settingsButton.onClick.AddListener(() => OnSettingsButtonPressed?.Invoke());
-        reviewAppButton.onClick.AddListener(() => OnReviewAppButtonPressed?.Invoke());
+        reviewAppButton.onClick.AddListener(OnReviewAppButtonPressed);
+        UpdateRewardSystem();
     }
 
     private void OnDestroy()
     {
+        PlayerDataManager.OnPlayerDataLoaded -= OnPlayerDataLoaded;
         OnToggleUiStartPanel -= ToggleUiStartPanel;
-        GpsManager.OnCloudDataLoaded -= OnCloudDataLoaded;
         tapToStartButton.onClick.RemoveListener(OnTapToStartButtonClicked);
         leaderboardButton.onClick.RemoveListener(OnLeaderBoardButtonClicked);
         achievementsButton.onClick.RemoveListener(OnAchievementsButtonClicked);
+        dailyRewardsButton.onClick.RemoveListener(OnRewardsButtonPressed);
         shopButton.onClick.RemoveListener(() => OnShopButtonPressed?.Invoke());
         settingsButton.onClick.RemoveListener(() => OnSettingsButtonPressed?.Invoke());
-        reviewAppButton.onClick.RemoveListener(() => OnReviewAppButtonPressed?.Invoke());
+        reviewAppButton.onClick.RemoveListener(OnReviewAppButtonPressed);
+    }
+
+    private void OnPlayerDataLoaded()
+    {
+        UpdateRetriesHighScore();
+        UpdateRewardSystem();
     }
 
     private IEnumerator GetAllPanelSizes()
@@ -107,23 +119,77 @@ public class UiStartPanel : MonoBehaviour
         }
     }
 
-    private void OnCloudDataLoaded(string obj)
-    {
-        UpdateRetriesHighScore();
-    }
-
     private void UpdateRetriesHighScore()
     {
-        retriesText.text = "Sessions: " + AppData.retries.ToString();
-        highScoreText.text = "High Score: " + AppData.highScore.ToString();
+        retriesText.text = "Sessions: " + PlayerDataManager.Instance.GetRetries();
+        highScoreText.text = "High Score: " + PlayerDataManager.Instance.GetHighScore();
     }
+
+
+    #region Rewards stuff
+    private bool IsRewardReady()
+    {
+        int yieldTotalSeconds = (int)PlayerDataManager.Instance.GetRewardsDateTime().Subtract(DateTime.UtcNow).TotalSeconds;
+        return yieldTotalSeconds <= 0;
+    }
+
+    private void UpdateRewardSystem()
+    {
+        if (IsRewardReady())
+        {
+            dailyRewardsText.text = "Ready";
+            updateRewardTimer = false;
+            dailyRewardsButton.interactable = true;
+        }
+        else
+        {
+            updateRewardTimer = true;
+            dailyRewardsButton.interactable = false;
+        }
+    }
+
+    private void OnRewardsButtonPressed()
+    {
+        if (IsRewardReady())
+        {
+            PlayerDataManager.Instance.SetNextRewardTime();
+            updateRewardTimer = true;
+            StartCoroutine(RewardPlayer());
+        }
+    }
+
+    private IEnumerator RewardPlayer()
+    {
+        for (int i = 0; i < AppData.gemsRewards; i++)
+        {
+            UiGemsSpawnCanvas.OnSpawnGem2d?.Invoke(topPanelRect.GetRandomPointInRectTransform());
+            yield return new WaitForEndOfFrame();
+        }
+    }
+
+    private void Update()
+    {
+        if (updateRewardTimer)
+        {
+            rewardTimeSpan = PlayerDataManager.Instance.GetRewardsDateTime().Subtract(DateTime.UtcNow);
+            dailyRewardsText.text = rewardTimeSpan.ToFormattedDuration();
+            if (rewardTimeSpan.TotalSeconds <= 0)
+            {
+                updateRewardTimer = false;
+                UpdateRewardSystem();
+            }
+        }
+    }
+    #endregion
+
 
     private void OnTapToStartButtonClicked()
     {
         ToggleUiStartPanel(false);
         OnGameStart?.Invoke();
-        AppData.retries++;
-        retriesText.text = AppData.retries.ToString();
+        PlayerDataManager.Instance.IncrementRetries();
+        retriesText.text = PlayerDataManager.Instance.GetRetries().ToString();
+        updateRewardTimer = false;
     }
 
     private void OnAchievementsButtonClicked()
@@ -134,5 +200,10 @@ public class UiStartPanel : MonoBehaviour
     private void OnLeaderBoardButtonClicked()
     {
         GpsManager.Instance.ShowLeaderboardUI();
+    }
+
+    private void OnReviewAppButtonPressed()
+    {
+        Application.OpenURL("https://play.google.com/store/apps/details?id=com.bronz.slideway");
     }
 }

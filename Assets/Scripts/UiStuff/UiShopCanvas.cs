@@ -30,7 +30,7 @@ public class UiShopCanvas : MonoBehaviour
 
     private void Awake()
     {
-        UiStartPanel.OnShopButtonPressed += OnShopButtonPressed;
+        UiStartCanvas.OnShopButtonPressed += OnShopButtonPressed;
         closeButton.onClick.AddListener(HideShopMenu);
         StartCoroutine(GetMainPanelHeight());
     }
@@ -43,7 +43,7 @@ public class UiShopCanvas : MonoBehaviour
 
     private void OnDestroy()
     {
-        UiStartPanel.OnShopButtonPressed -= OnShopButtonPressed;
+        UiStartCanvas.OnShopButtonPressed -= OnShopButtonPressed;
         closeButton.onClick.RemoveListener(HideShopMenu);
     }
 
@@ -72,7 +72,7 @@ public class UiShopCanvas : MonoBehaviour
         OnIsShopMenuVisible?.Invoke(true);
         mainPanel.gameObject.SetActive(true);
         mainPanel.DOAnchorPosY(0, animDuration);
-        UiStartPanel.OnToggleUiStartPanel?.Invoke(false);
+        UiStartCanvas.OnToggleUiStartPanel?.Invoke(false);
     }
 
     private void HideShopMenu()
@@ -80,7 +80,7 @@ public class UiShopCanvas : MonoBehaviour
         OnIsShopMenuVisible?.Invoke(false);
         mainPanel.DOAnchorPosY(-panelHeight, animDuration)
             .OnComplete(() => mainPanel.gameObject.SetActive(false));
-        UiStartPanel.OnToggleUiStartPanel?.Invoke(true);
+        UiStartCanvas.OnToggleUiStartPanel?.Invoke(true);
     }
     #endregion
 
@@ -119,7 +119,7 @@ public class UiShopCanvas : MonoBehaviour
     #region Ball Buttons
     private void CreateBallItemButtons()
     {
-        TextAsset mytxtData = (TextAsset)Resources.Load(AppData.dbPath);
+        TextAsset mytxtData = (TextAsset)Resources.Load(AppData.shopItemsDbJsonPath);
         shopItems = JsonUtility.FromJson<ShopItems>(mytxtData.text);
 
         for (int i = 0; i < shopItems.GemBalls.Count; i++)

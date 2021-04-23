@@ -20,13 +20,13 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
-        UiStartPanel.OnGameStart += OnGameStart;
+        UiStartCanvas.OnGameStart += OnGameStart;
         UiShopCanvas.OnBallMaterialChanged += OnBallMaterialChanged;
     }
 
     private void OnDestroy()
     {
-        UiStartPanel.OnGameStart -= OnGameStart;
+        UiStartCanvas.OnGameStart -= OnGameStart;
         UiShopCanvas.OnBallMaterialChanged -= OnBallMaterialChanged;
     }
 
