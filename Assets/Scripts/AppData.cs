@@ -22,9 +22,7 @@
     public const float floorLightness = 0.75f;
 
     public const string shopItemsDbJsonPath = "DB/ShopDB";
-    public const string gemsBallMatPath = "BallMaterials/GemsBall";
-    public const string AdsBallMatPath = "BallMaterials/AdsBall";
-    public const string paidBallMatPath = "BallMaterials/PaidBall";
+    public const string allBallMatPath = "BallMaterials";
 
     public const string gemIcon = "<sprite=0>";
     public const string adIcon = "<sprite=1>";

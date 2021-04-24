@@ -5,23 +5,23 @@ using UnityEngine;
 public class PlayerDataManager : Singleton<PlayerDataManager>
 {
     public static Action OnPlayerDataLoaded;
+    public static Action<PlayerData> UpdatePlayerDataOnUI;
+    public static Action<string> OnUpdateRewardTimer;
+    public static Action OnRewardAvailable;
     [SerializeField] private PlayerData playerData;
     private DateTime rewardsDateTime;
+    [SerializeField] private TimeSpan rewardTimeSpan;
 
     protected override void Awake()
     {
         base.Awake();
         BallController.OnGameOver += OnGameOver;
         GpsManager.OnCloudDataLoaded += OnCloudDataLoaded;
-#if UNITY_EDITOR
-
-#endif
     }
 
     private void Start()
     {
 #if UNITY_EDITOR
-        rewardsDateTime = DateTime.UtcNow;
         OnCloudDataLoaded("");
 #endif
     }
@@ -37,6 +37,7 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         if (string.IsNullOrEmpty(cloudData))
         {
             playerData = new PlayerData();
+            rewardsDateTime = DateTime.UtcNow;
             SaveGameUserDataOnCloud();
         }
         else
@@ -44,22 +45,42 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
             playerData = JsonUtility.FromJson<PlayerData>(cloudData);
             rewardsDateTime = JsonUtility.FromJson<JsonDateTime>(playerData.nextRewardDateTime);
         }
-        UpgradeSaveFromLastVersion();
+        UpgradeSaveOfLastVersion();
         OnPlayerDataLoaded?.Invoke();
+        InvokeRepeating("CheckReward", 1f, 1f);
     }
 
-    private void UpgradeSaveFromLastVersion()
+    private void UpgradeSaveOfLastVersion()
     {
         if (PlayerPrefs.HasKey("BestScore"))
         {
             playerData.highScore = PlayerPrefs.GetInt("BestScore");
-            SaveGameUserDataOnCloud();
             PlayerPrefs.DeleteKey("BestScore");
+            SaveGameUserDataOnCloud();
+        }
+    }
+
+    private void CheckReward()
+    {
+        rewardTimeSpan = rewardsDateTime.Subtract(DateTime.UtcNow);
+        if (rewardTimeSpan.TotalSeconds <= 0)
+        {
+            OnRewardAvailable?.Invoke();
+        }
+        else
+        {
+            OnUpdateRewardTimer?.Invoke(rewardTimeSpan.ToFormattedDuration());
         }
     }
 
 
     #region Get Set Player Data
+    public string CurrentSelectedBallId
+    {
+        get { return playerData.currentBallId; }
+        set { playerData.currentBallId = value; }
+    }
+
     public bool IsSoundEnabled
     {
         get { return playerData.isSoundEnabled; }
@@ -72,17 +93,19 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         set { playerData.isVibrateEnabled = value; }
     }
 
-    public DateTime GetRewardsDateTime()
+    public DateTime RewardDateTime
     {
-        return rewardsDateTime;
+        get { return rewardsDateTime; }
+        set
+        {
+            rewardsDateTime = value;
+            playerData.nextRewardDateTime = JsonUtility.ToJson((JsonDateTime)rewardsDateTime);
+        }
     }
 
-    public void SetNextRewardTime()
+    public bool IsPlayerDataNull()
     {
-        // DateTime nextRewardTIme = DateTime.UtcNow.AddHours(AppData.nextRewardInHours);
-        DateTime nextRewardTIme = DateTime.UtcNow.AddSeconds(60);
-        playerData.nextRewardDateTime = JsonUtility.ToJson((JsonDateTime)nextRewardTIme);
-        rewardsDateTime = nextRewardTIme;
+        return playerData == null;
     }
 
     public int GetHighScore()
@@ -137,10 +160,8 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     }
     #endregion
 
-
     private void OnGameOver()
     {
-        Handheld.Vibrate();
         if (AppData.currentScore > playerData.highScore)
         {
             playerData.highScore = AppData.currentScore;
@@ -148,7 +169,6 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         }
         SaveGameUserDataOnCloud();
     }
-
 
     #region Save Game on Exit or Pause
     private void OnApplicationQuit()
@@ -158,13 +178,10 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
 
     private void OnApplicationPause(bool pause)
     {
-        if (pause)
-        {
-            SaveGameUserDataOnCloud();
-        }
+        if (pause) { SaveGameUserDataOnCloud(); }
     }
 
-    private void SaveGameUserDataOnCloud()
+    public void SaveGameUserDataOnCloud()
     {
         string save = JsonUtility.ToJson(playerData);
         Hud.SetHudText?.Invoke("saving " + save);
@@ -186,6 +203,18 @@ public class PlayerData
     public string nextRewardDateTime = "";
     public bool isSoundEnabled = true;
     public bool isVibrateEnabled = true;
+
+    public PlayerData()
+    {
+        gems = 0;
+        highScore = 0;
+        retries = 0;
+        unlockedBallIds = new List<string>();
+        currentBallId = "gem0";
+        nextRewardDateTime = JsonUtility.ToJson((JsonDateTime)DateTime.UtcNow);
+        isSoundEnabled = true;
+        isVibrateEnabled = true;
+    }
 }
 
 [System.Serializable]

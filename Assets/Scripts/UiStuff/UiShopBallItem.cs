@@ -5,23 +5,24 @@ using TMPro;
 
 public class UiShopBallItem : MonoBehaviour
 {
-    public Action<int> OnButtonClicked;
+    public Action<string> OnButtonClicked;
     private Button button;
     private TextMeshProUGUI valueText;
-    private int id;
-    public RectTransform rect;
+    private RectTransform rect;
+    private string ballId;
 
-    private void Awake()
+    public RectTransform GetRect()
+    {
+        return rect;
+    }
+
+    public void InitButton(string id, string value)
     {
         rect = GetComponent<RectTransform>();
         button = GetComponent<Button>();
         valueText = transform.GetChild(0).GetComponent<TextMeshProUGUI>();
         button.onClick.AddListener(OnButtonClick);
-    }
-
-    public void InitButton(int id, string value)
-    {
-        this.id = id;
+        ballId = id;
         valueText.text = value;
     }
 
@@ -32,7 +33,6 @@ public class UiShopBallItem : MonoBehaviour
 
     private void OnButtonClick()
     {
-        print(id);
-        OnButtonClicked?.Invoke(id);
+        OnButtonClicked?.Invoke(ballId);
     }
 }

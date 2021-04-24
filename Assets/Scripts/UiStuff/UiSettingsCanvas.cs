@@ -20,22 +20,30 @@ public class UiSettingsCanvas : MonoBehaviour
     private void Awake()
     {
         PlayerDataManager.OnPlayerDataLoaded += OnPlayerDataLoaded;
+        UiStartCanvas.OnSettingsButtonPressed += OnSettingsButtonPressed;
         closeButton.onClick.AddListener(OnCloseButtonClicked);
         closeButtonBG.onClick.AddListener(OnCloseButtonClicked);
         soundToggle.onValueChanged.AddListener(OnSoundToggle);
         vibrateToggle.onValueChanged.AddListener(OnVibrateToggle);
-        UiStartCanvas.OnSettingsButtonPressed += OnSettingsButtonPressed;
         StartCoroutine(GetRectHeight());
+    }
+
+    private void Start()
+    {
+        if (!PlayerDataManager.Instance.IsPlayerDataNull())
+        {
+            OnPlayerDataLoaded();
+        }
     }
 
     private void OnDestroy()
     {
         PlayerDataManager.OnPlayerDataLoaded -= OnPlayerDataLoaded;
+        UiStartCanvas.OnSettingsButtonPressed -= OnSettingsButtonPressed;
         closeButton.onClick.RemoveListener(OnCloseButtonClicked);
         closeButtonBG.onClick.RemoveListener(OnCloseButtonClicked);
         soundToggle.onValueChanged.RemoveListener(OnSoundToggle);
         vibrateToggle.onValueChanged.RemoveListener(OnVibrateToggle);
-        UiStartCanvas.OnSettingsButtonPressed -= OnSettingsButtonPressed;
     }
 
     private void OnPlayerDataLoaded()

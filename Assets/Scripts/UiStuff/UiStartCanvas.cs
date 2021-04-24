@@ -39,12 +39,9 @@ public class UiStartCanvas : MonoBehaviour
     [SerializeField] private RectTransform rightButtonsRect;
     [SerializeField] private Button settingsButton;
     [SerializeField] private Button shopButton;
-    [SerializeField] private Button dailyRewardsButton;
+    [SerializeField] private Button rewardsButton;
     [SerializeField] private TextMeshProUGUI dailyRewardsText;
 
-
-    [SerializeField] private bool updateRewardTimer = false;
-    [SerializeField] private TimeSpan rewardTimeSpan;
     private float topHideYPos;
     private float leftHideXPos;
     private float rightHideXPos;
@@ -54,6 +51,8 @@ public class UiStartCanvas : MonoBehaviour
     {
         OnToggleUiStartPanel += ToggleUiStartPanel;
         PlayerDataManager.OnPlayerDataLoaded += OnPlayerDataLoaded;
+        PlayerDataManager.OnUpdateRewardTimer += OnUpdateRewardTimer;
+        PlayerDataManager.OnRewardAvailable += OnRewardAvailable;
     }
 
     private void Start()
@@ -62,11 +61,11 @@ public class UiStartCanvas : MonoBehaviour
         tapToStartButton.onClick.AddListener(OnTapToStartButtonClicked);
         leaderboardButton.onClick.AddListener(OnLeaderBoardButtonClicked);
         achievementsButton.onClick.AddListener(OnAchievementsButtonClicked);
-        dailyRewardsButton.onClick.AddListener(OnRewardsButtonPressed);
+        rewardsButton.onClick.AddListener(OnRewardsButtonPressed);
         shopButton.onClick.AddListener(() => OnShopButtonPressed?.Invoke());
         settingsButton.onClick.AddListener(() => OnSettingsButtonPressed?.Invoke());
         reviewAppButton.onClick.AddListener(OnReviewAppButtonPressed);
-        UpdateRewardSystem();
+        UpdateAllSavedValues();
     }
 
     private void OnDestroy()
@@ -76,16 +75,17 @@ public class UiStartCanvas : MonoBehaviour
         tapToStartButton.onClick.RemoveListener(OnTapToStartButtonClicked);
         leaderboardButton.onClick.RemoveListener(OnLeaderBoardButtonClicked);
         achievementsButton.onClick.RemoveListener(OnAchievementsButtonClicked);
-        dailyRewardsButton.onClick.RemoveListener(OnRewardsButtonPressed);
+        rewardsButton.onClick.RemoveListener(OnRewardsButtonPressed);
         shopButton.onClick.RemoveListener(() => OnShopButtonPressed?.Invoke());
         settingsButton.onClick.RemoveListener(() => OnSettingsButtonPressed?.Invoke());
         reviewAppButton.onClick.RemoveListener(OnReviewAppButtonPressed);
+        PlayerDataManager.OnUpdateRewardTimer -= OnUpdateRewardTimer;
+        PlayerDataManager.OnRewardAvailable -= OnRewardAvailable;
     }
 
     private void OnPlayerDataLoaded()
     {
-        UpdateRetriesHighScore();
-        UpdateRewardSystem();
+        UpdateAllSavedValues();
     }
 
     private IEnumerator GetAllPanelSizes()
@@ -119,43 +119,27 @@ public class UiStartCanvas : MonoBehaviour
         }
     }
 
-    private void UpdateRetriesHighScore()
-    {
-        retriesText.text = "Sessions: " + PlayerDataManager.Instance.GetRetries();
-        highScoreText.text = "High Score: " + PlayerDataManager.Instance.GetHighScore();
-    }
-
 
     #region Rewards stuff
-    private bool IsRewardReady()
+    private void OnRewardAvailable()
     {
-        int yieldTotalSeconds = (int)PlayerDataManager.Instance.GetRewardsDateTime().Subtract(DateTime.UtcNow).TotalSeconds;
-        return yieldTotalSeconds <= 0;
+        rewardsButton.interactable = true;
+        dailyRewardsText.text = "Ready";
     }
 
-    private void UpdateRewardSystem()
+    private void OnUpdateRewardTimer(string rewardText)
     {
-        if (IsRewardReady())
-        {
-            dailyRewardsText.text = "Ready";
-            updateRewardTimer = false;
-            dailyRewardsButton.interactable = true;
-        }
-        else
-        {
-            updateRewardTimer = true;
-            dailyRewardsButton.interactable = false;
-        }
+        rewardsButton.interactable = false;
+        dailyRewardsText.text = rewardText;
     }
 
     private void OnRewardsButtonPressed()
     {
-        if (IsRewardReady())
-        {
-            PlayerDataManager.Instance.SetNextRewardTime();
-            updateRewardTimer = true;
-            StartCoroutine(RewardPlayer());
-        }
+        rewardsButton.interactable = false;
+        //PlayerDataManager.Instance.RewardDateTime = DateTime.UtcNow.AddHours(AppData.nextRewardInHours);
+        PlayerDataManager.Instance.RewardDateTime = DateTime.UtcNow.AddSeconds(60);
+        PlayerDataManager.Instance.SaveGameUserDataOnCloud();
+        StartCoroutine(RewardPlayer());
     }
 
     private IEnumerator RewardPlayer()
@@ -167,18 +151,15 @@ public class UiStartCanvas : MonoBehaviour
         }
     }
 
-    private void Update()
+    private void UpdateAllSavedValues()
     {
-        if (updateRewardTimer)
+        if (PlayerDataManager.Instance.IsPlayerDataNull())
         {
-            rewardTimeSpan = PlayerDataManager.Instance.GetRewardsDateTime().Subtract(DateTime.UtcNow);
-            dailyRewardsText.text = rewardTimeSpan.ToFormattedDuration();
-            if (rewardTimeSpan.TotalSeconds <= 0)
-            {
-                updateRewardTimer = false;
-                UpdateRewardSystem();
-            }
+            Debug.LogError("PlayerData is null");
+            return;
         }
+        retriesText.text = "Sessions: " + PlayerDataManager.Instance.GetRetries();
+        highScoreText.text = "High Score: " + PlayerDataManager.Instance.GetHighScore();
     }
     #endregion
 
@@ -188,8 +169,6 @@ public class UiStartCanvas : MonoBehaviour
         ToggleUiStartPanel(false);
         OnGameStart?.Invoke();
         PlayerDataManager.Instance.IncrementRetries();
-        retriesText.text = PlayerDataManager.Instance.GetRetries().ToString();
-        updateRewardTimer = false;
     }
 
     private void OnAchievementsButtonClicked()

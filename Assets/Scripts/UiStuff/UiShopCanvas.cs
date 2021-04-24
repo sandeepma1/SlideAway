@@ -22,14 +22,12 @@ public class UiShopCanvas : MonoBehaviour
     private float panelHeight;
     private int lastClickedTabId;
     private const float animDuration = 0.25f;
-    private float gridLayoutWidth;
     private ShopItems shopItems;
-    private List<UiShopBallItem> uiShopBallItemGem = new List<UiShopBallItem>();
-    private List<UiShopBallItem> uiShopBallItemAd = new List<UiShopBallItem>();
-    private List<UiShopBallItem> uiShopBallItemPaid = new List<UiShopBallItem>();
+    private Dictionary<string, UiShopBallItem> uiShopBallItems = new Dictionary<string, UiShopBallItem>();
 
     private void Awake()
     {
+        PlayerDataManager.OnPlayerDataLoaded += OnPlayerDataLoaded;
         UiStartCanvas.OnShopButtonPressed += OnShopButtonPressed;
         closeButton.onClick.AddListener(HideShopMenu);
         StartCoroutine(GetMainPanelHeight());
@@ -38,11 +36,12 @@ public class UiShopCanvas : MonoBehaviour
     private void Start()
     {
         InitTabs();
-        CreateBallItemButtons();
+
     }
 
     private void OnDestroy()
     {
+        PlayerDataManager.OnPlayerDataLoaded -= OnPlayerDataLoaded;
         UiStartCanvas.OnShopButtonPressed -= OnShopButtonPressed;
         closeButton.onClick.RemoveListener(HideShopMenu);
     }
@@ -60,6 +59,8 @@ public class UiShopCanvas : MonoBehaviour
             contents[i].gameObject.SetActive(false);
         }
         contents[0].gameObject.SetActive(true);
+        CreateAllBallItems();
+        OnPlayerDataLoaded();
     }
 
     private void OnShopButtonPressed()
@@ -115,58 +116,56 @@ public class UiShopCanvas : MonoBehaviour
     }
     #endregion
 
+    private void OnPlayerDataLoaded()
+    {
+        OnShopBallButtonClicked(PlayerDataManager.Instance.CurrentSelectedBallId);
+    }
 
     #region Ball Buttons
-    private void CreateBallItemButtons()
+    private void CreateAllBallItems()
     {
         TextAsset mytxtData = (TextAsset)Resources.Load(AppData.shopItemsDbJsonPath);
         shopItems = JsonUtility.FromJson<ShopItems>(mytxtData.text);
-
-        for (int i = 0; i < shopItems.GemBalls.Count; i++)
+        for (int i = 0; i < shopItems.ShopBallItems.Count; i++)
         {
-            UiShopBallItem uiShopBallItem = Instantiate(uiShopBallItemPrefab, contents[0]);
-            uiShopBallItem.InitButton(i, shopItems.GemBalls[i].value + AppData.gemIcon);
-            uiShopBallItem.OnButtonClicked += OnGemBallButtonClicked;
-            uiShopBallItemGem.Add(uiShopBallItem);
+            Enum.TryParse(shopItems.ShopBallItems[i].type, out shopItems.ShopBallItems[i].eballTypes);
         }
-        SetItemSelector(uiShopBallItemGem[0].rect.transform);
-        for (int i = 0; i < shopItems.AdBalls.Count; i++)
+        for (int i = 0; i < shopItems.ShopBallItems.Count; i++)
         {
-            UiShopBallItem uiShopBallItem = Instantiate(uiShopBallItemPrefab, contents[1]);
-            uiShopBallItem.InitButton(i, shopItems.AdBalls[i].value + AppData.adIcon);
-            uiShopBallItem.OnButtonClicked += OnAdBallButtonClicked;
-            uiShopBallItemAd.Add(uiShopBallItem);
+            UiShopBallItem uiShopBallItem = new UiShopBallItem();
+            switch (shopItems.ShopBallItems[i].eballTypes)
+            {
+                case BallTypes.Gems:
+                    uiShopBallItem = Instantiate(uiShopBallItemPrefab, contents[0]);
+                    uiShopBallItem.InitButton(shopItems.ShopBallItems[i].id, shopItems.ShopBallItems[i].value + AppData.gemIcon);
+                    break;
+                case BallTypes.Ads:
+                    uiShopBallItem = Instantiate(uiShopBallItemPrefab, contents[1]);
+                    uiShopBallItem.InitButton(shopItems.ShopBallItems[i].id, shopItems.ShopBallItems[i].value + " " + AppData.adIcon);
+                    break;
+                case BallTypes.Paid:
+                    uiShopBallItem = Instantiate(uiShopBallItemPrefab, contents[2]);
+                    uiShopBallItem.InitButton(shopItems.ShopBallItems[i].id, "$ " + shopItems.ShopBallItems[i].value);
+                    break;
+                default:
+                    break;
+            }
+            uiShopBallItem.OnButtonClicked += OnShopBallButtonClicked;
+            uiShopBallItems.Add(shopItems.ShopBallItems[i].id, uiShopBallItem);
         }
-        for (int i = 0; i < shopItems.PaidBalls.Count; i++)
+        SetItemSelector(uiShopBallItems[PlayerDataManager.Instance.CurrentSelectedBallId].GetRect().transform);
+    }
+
+    private void OnShopBallButtonClicked(string id)
+    {
+        if (uiShopBallItems.ContainsKey(id))
         {
-            UiShopBallItem uiShopBallItem = Instantiate(uiShopBallItemPrefab, contents[2]);
-            uiShopBallItem.InitButton(i, "$" + shopItems.PaidBalls[i].value);
-            uiShopBallItem.OnButtonClicked += OnPaidBallButtonClicked;
-            uiShopBallItemPaid.Add(uiShopBallItem);
+            SetItemSelector(uiShopBallItems[id].transform);
+            OnBallMaterialChanged?.Invoke(
+                Resources.Load(AppData.allBallMatPath + "/" + id, typeof(Material)) as Material);
+            PlayerDataManager.Instance.CurrentSelectedBallId = id;
         }
     }
-
-    private void OnGemBallButtonClicked(int id)
-    {
-        SetItemSelector(uiShopBallItemGem[id].transform);
-        OnBallMaterialChanged?.Invoke(
-            Resources.Load(AppData.gemsBallMatPath + "/" + id, typeof(Material)) as Material);
-    }
-
-    private void OnAdBallButtonClicked(int id)
-    {
-        SetItemSelector(uiShopBallItemAd[id].transform);
-        OnBallMaterialChanged?.Invoke(
-           Resources.Load(AppData.AdsBallMatPath + "/" + id, typeof(Material)) as Material);
-    }
-
-    private void OnPaidBallButtonClicked(int id)
-    {
-        SetItemSelector(uiShopBallItemPaid[id].transform);
-        OnBallMaterialChanged?.Invoke(
-           Resources.Load(AppData.paidBallMatPath + "/" + id, typeof(Material)) as Material);
-    }
-
 
     private void SetItemSelector(Transform parent)
     {
@@ -178,32 +177,26 @@ public class UiShopCanvas : MonoBehaviour
 }
 
 
-[System.Serializable]
-public class ShoppItem
-{
-    public int id;
-    public float value;
-}
 
 [System.Serializable]
 public class ShopItems
 {
-    public List<ShoppItem> GemBalls;
-    public List<ShoppItem> AdBalls;
-    public List<ShoppItem> PaidBalls;
+    public List<ShopBallItem> ShopBallItems;
 }
 
 [System.Serializable]
-public class UnlockedItem
+public class ShopBallItem
 {
-    public int id;
+    public string id;
+    public string type;
+    public float value;
+    public BallTypes eballTypes;
     public bool isUnlocked;
     public int incrementValue;
 }
-[System.Serializable]
-public class UnlockedItems
+public enum BallTypes
 {
-    public List<UnlockedItem> GemBalls;
-    public List<UnlockedItem> AdBalls;
-    public List<UnlockedItem> PaidBalls;
+    Gems,
+    Ads,
+    Paid
 }
