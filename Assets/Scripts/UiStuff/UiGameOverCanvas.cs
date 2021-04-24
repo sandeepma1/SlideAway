@@ -6,8 +6,7 @@ using System;
 
 public class UiGameOverCanvas : MonoBehaviour
 {
-    public static Action OnResumeStart;
-    public static Action OnResumed;
+    public static Action OnRestartLevel;
     [SerializeField] private GameObject mainPanel;
     [SerializeField] private Button restartButton;
     [SerializeField] private TextMeshProUGUI score;
@@ -35,6 +34,8 @@ public class UiGameOverCanvas : MonoBehaviour
 
     private void RestartLevelButtonClicked()
     {
+        mainPanel.SetActive(false);
+        OnRestartLevel?.Invoke();
         SceneManager.LoadScene(0);
     }
 }

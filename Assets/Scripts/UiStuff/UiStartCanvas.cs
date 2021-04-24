@@ -21,21 +21,18 @@ public class UiStartCanvas : MonoBehaviour
     public static Action OnInstagramButtonPressed;
     public static Action OnTwitterButtonPressed;
 
-    [SerializeField] private BoxCollider rewardsBoxCollider;
     [SerializeField] private Button tapToStartButton;
     [Space(10)]
     [SerializeField] private GameObject mainPanel;
     [SerializeField] private RectTransform topPanelRect;
     [SerializeField] private TextMeshProUGUI highScoreText;
     [SerializeField] private TextMeshProUGUI retriesText;
-    [Space(10)]
-    //Left Buttons
+    [Space(10)]    //Left Buttons
     [SerializeField] private RectTransform leftButtonsRect;
     [SerializeField] private Button leaderboardButton;
     [SerializeField] private Button achievementsButton;
     [SerializeField] private Button reviewAppButton;
-    [Space(10)]
-    //Right Buttons
+    [Space(10)]    //Right Buttons
     [SerializeField] private RectTransform rightButtonsRect;
     [SerializeField] private Button settingsButton;
     [SerializeField] private Button shopButton;
@@ -98,11 +95,6 @@ public class UiStartCanvas : MonoBehaviour
 
     private void ToggleUiStartPanel(bool isVisible)
     {
-        //mainPanel.SetActive(isVisible);
-        if (tapToStartButton != null)
-        {
-
-        }
         tapToStartButton.gameObject.SetActive(isVisible);
         if (isVisible)
         {
@@ -136,8 +128,8 @@ public class UiStartCanvas : MonoBehaviour
     private void OnRewardsButtonPressed()
     {
         rewardsButton.interactable = false;
-        //PlayerDataManager.Instance.RewardDateTime = DateTime.UtcNow.AddHours(AppData.nextRewardInHours);
-        PlayerDataManager.Instance.RewardDateTime = DateTime.UtcNow.AddSeconds(60);
+        PlayerDataManager.Instance.RewardDateTime = DateTime.UtcNow.AddHours(AppData.nextRewardInHours);
+        //PlayerDataManager.Instance.RewardDateTime = DateTime.UtcNow.AddSeconds(60);
         PlayerDataManager.Instance.SaveGameUserDataOnCloud();
         StartCoroutine(RewardPlayer());
     }

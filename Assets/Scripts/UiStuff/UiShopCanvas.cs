@@ -36,7 +36,6 @@ public class UiShopCanvas : MonoBehaviour
     private void Start()
     {
         InitTabs();
-
     }
 
     private void OnDestroy()
@@ -132,19 +131,19 @@ public class UiShopCanvas : MonoBehaviour
         }
         for (int i = 0; i < shopItems.ShopBallItems.Count; i++)
         {
-            UiShopBallItem uiShopBallItem = new UiShopBallItem();
+            UiShopBallItem uiShopBallItem = Instantiate(uiShopBallItemPrefab, contents[0]);
             switch (shopItems.ShopBallItems[i].eballTypes)
             {
                 case BallTypes.Gems:
-                    uiShopBallItem = Instantiate(uiShopBallItemPrefab, contents[0]);
+                    uiShopBallItem.transform.SetParent(contents[0]);
                     uiShopBallItem.InitButton(shopItems.ShopBallItems[i].id, shopItems.ShopBallItems[i].value + AppData.gemIcon);
                     break;
                 case BallTypes.Ads:
-                    uiShopBallItem = Instantiate(uiShopBallItemPrefab, contents[1]);
+                    uiShopBallItem.transform.SetParent(contents[1]);
                     uiShopBallItem.InitButton(shopItems.ShopBallItems[i].id, shopItems.ShopBallItems[i].value + " " + AppData.adIcon);
                     break;
                 case BallTypes.Paid:
-                    uiShopBallItem = Instantiate(uiShopBallItemPrefab, contents[2]);
+                    uiShopBallItem.transform.SetParent(contents[2]);
                     uiShopBallItem.InitButton(shopItems.ShopBallItems[i].id, "$ " + shopItems.ShopBallItems[i].value);
                     break;
                 default:

@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-public class SoundManager : MonoBehaviour
+public class SoundManager : Singleton<SoundManager>
 {
     [SerializeField] private AudioSource clickAS;
     [SerializeField] private AudioSource gemAS;

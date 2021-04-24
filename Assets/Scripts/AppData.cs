@@ -14,7 +14,7 @@
     public const int gemSpawnRate = 10;//higher is less spawn
 
     //Rewards
-    public const int nextRewardInHours = 2;
+    public const int nextRewardInHours = 6;
     public const int gemsRewards = 25;
 
     //Misc
