@@ -9,25 +9,24 @@ public class CameraFollow : MonoBehaviour
     private Vector3 offset;
     private Camera mainCamera;
     private const float normalYPos = 17;
-    private const float shopYPos = 10;
+    private const float shopYPos = 18f;
     private const float normalZoom = 15;
-    private const float shopZoom = 9;
-    private const float animSpeed = 0.25f;
+    private const float shopZoom = 7;
 
     private void Awake()
     {
         mainCamera = GetComponent<Camera>();
         offset = ball.transform.position - transform.position;
-        BallController.OnGameOver += OnGameOver;
+        PlayerController.OnGameOver += OnGameOver;
         UiStartCanvas.OnGameStart += OnGameStart;
-        UiShopCanvas.OnIsShopMenuVisible += OnIsShopMenuVisible;
+        UiBallShopCanvas.OnIsShopMenuVisible += OnIsShopMenuVisible;
     }
 
     private void OnDestroy()
     {
-        BallController.OnGameOver -= OnGameOver;
+        PlayerController.OnGameOver -= OnGameOver;
         UiStartCanvas.OnGameStart -= OnGameStart;
-        UiShopCanvas.OnIsShopMenuVisible -= OnIsShopMenuVisible;
+        UiBallShopCanvas.OnIsShopMenuVisible -= OnIsShopMenuVisible;
     }
 
     private void Update()
@@ -46,13 +45,13 @@ public class CameraFollow : MonoBehaviour
         gameOver = isVisible;
         if (isVisible)
         {
-            mainCamera.DOOrthoSize(shopZoom, animSpeed);
-            transform.DOMoveY(shopYPos, animSpeed);
+            mainCamera.DOOrthoSize(shopZoom, AppData.shopAnimSpeed);
+            transform.DOMoveY(shopYPos, AppData.shopAnimSpeed);
         }
         else
         {
-            mainCamera.DOOrthoSize(normalZoom, animSpeed);
-            transform.DOMoveY(normalYPos, animSpeed);
+            mainCamera.DOOrthoSize(normalZoom, AppData.shopAnimSpeed);
+            transform.DOMoveY(normalYPos, AppData.shopAnimSpeed);
         }
     }
 

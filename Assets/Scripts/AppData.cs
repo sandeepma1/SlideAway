@@ -20,9 +20,11 @@
     //Misc
     public const float floorSaturation = 0.8f;
     public const float floorLightness = 0.75f;
+    public const float shopAnimSpeed = 0.25f;
 
     public const string shopItemsDbJsonPath = "DB/ShopDB";
     public const string allBallMatPath = "BallMaterials";
+    public const string allBallIconsPath = "BallIcons";
 
     public const string gemIcon = "<sprite=0>";
     public const string adIcon = "<sprite=1>";

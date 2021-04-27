@@ -8,16 +8,16 @@ public class SoundManager : Singleton<SoundManager>
 
     private void Awake()
     {
-        BallController.OnBallSwitchDirection += OnBallSwitchDirection;
-        BallController.OnBallGemTouched += OnBallGemTouched;
-        BallController.OnGameOver += OnGameOver;
+        PlayerController.OnBallSwitchDirection += OnBallSwitchDirection;
+        PlayerController.OnBallGemTouched += OnBallGemTouched;
+        PlayerController.OnGameOver += OnGameOver;
     }
 
     private void OnDestroy()
     {
-        BallController.OnBallSwitchDirection -= OnBallSwitchDirection;
-        BallController.OnBallGemTouched -= OnBallGemTouched;
-        BallController.OnGameOver -= OnGameOver;
+        PlayerController.OnBallSwitchDirection -= OnBallSwitchDirection;
+        PlayerController.OnBallGemTouched -= OnBallGemTouched;
+        PlayerController.OnGameOver -= OnGameOver;
     }
 
     private void OnBallSwitchDirection()

@@ -9,8 +9,8 @@ public class UiTabButton : MonoBehaviour
     private Button tabButton;
     private Image tabButtonImage;
     private RectTransform buttonRect;
-    private const float bigButtonSize = 110;
-    private const float defaultButtonSize = 100;
+    private const float bigButtonSize = 140;
+    private const float defaultButtonSize = 125;
 
     public void Init(int id)
     {

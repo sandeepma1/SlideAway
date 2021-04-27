@@ -9,20 +9,36 @@ public class UiGameOverCanvas : MonoBehaviour
     public static Action OnRestartLevel;
     [SerializeField] private GameObject mainPanel;
     [SerializeField] private Button restartButton;
+    [SerializeField] private Button watchAdButton;
+    [SerializeField] private Button shareAdButton;
     [SerializeField] private TextMeshProUGUI score;
     [SerializeField] private TextMeshProUGUI highScore;
 
     private void Awake()
     {
-        BallController.OnGameOver += GameOver;
+        PlayerController.OnGameOver += GameOver;
         restartButton.onClick.AddListener(RestartLevelButtonClicked);
+        watchAdButton.onClick.AddListener(WatchAdButtonClicked);
+        shareAdButton.onClick.AddListener(ShareAdButtonClicked);
         mainPanel.SetActive(false);
     }
 
     private void OnDestroy()
     {
         restartButton.onClick.RemoveListener(RestartLevelButtonClicked);
-        BallController.OnGameOver -= GameOver;
+        watchAdButton.onClick.RemoveListener(WatchAdButtonClicked);
+        shareAdButton.onClick.RemoveListener(ShareAdButtonClicked);
+        PlayerController.OnGameOver -= GameOver;
+    }
+
+    private void WatchAdButtonClicked()
+    {
+        GameAdManager.OnWatchAdClicked?.Invoke();
+    }
+
+    private void ShareAdButtonClicked()
+    {
+
     }
 
     private void GameOver()

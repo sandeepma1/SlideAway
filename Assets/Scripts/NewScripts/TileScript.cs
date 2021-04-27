@@ -8,12 +8,12 @@ public class TileScript : MonoBehaviour
 
     private void Awake()
     {
-        BallController.OnGameOver += OnGameOver;
+        PlayerController.OnGameOver += OnGameOver;
     }
 
     private void OnDestroy()
     {
-        BallController.OnGameOver -= OnGameOver;
+        PlayerController.OnGameOver -= OnGameOver;
     }
 
     private void OnGameOver()

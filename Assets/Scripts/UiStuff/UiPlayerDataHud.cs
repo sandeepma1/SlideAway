@@ -12,8 +12,8 @@ public class UiPlayerDataHud : MonoBehaviour
     {
         PlayerDataManager.OnPlayerDataLoaded += OnPlayerDataLoaded;
         UiStartCanvas.OnGameStart += OnGameStart;
-        BallController.OnGameOver += OnGameOver;
-        BallController.OnUpdateScore += UpdateCurrentScore;
+        PlayerController.OnGameOver += OnGameOver;
+        PlayerController.OnUpdateScore += UpdateCurrentScore;
         UiGemsSpawnCanvas.OnUpdateGems += UpdateGems;
         scoreGo.SetActive(false);
         UpdateGems();
@@ -23,8 +23,8 @@ public class UiPlayerDataHud : MonoBehaviour
     {
         PlayerDataManager.OnPlayerDataLoaded -= OnPlayerDataLoaded;
         UiStartCanvas.OnGameStart -= OnGameStart;
-        BallController.OnGameOver -= OnGameOver;
-        BallController.OnUpdateScore -= UpdateCurrentScore;
+        PlayerController.OnGameOver -= OnGameOver;
+        PlayerController.OnUpdateScore -= UpdateCurrentScore;
         UiGemsSpawnCanvas.OnUpdateGems -= UpdateGems;
     }
 

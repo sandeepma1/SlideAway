@@ -13,52 +13,32 @@
     {
       "id": "gem2",
       "type": "Gems",
-      "value": 100
+      "value": 250
     },
     {
       "id": "gem3",
       "type": "Gems",
-      "value": 100
+      "value": 250
     },
     {
       "id": "gem4",
       "type": "Gems",
-      "value": 250
+      "value": 750
     },
     {
       "id": "gem5",
       "type": "Gems",
-      "value": 250
+      "value": 750
     },
     {
       "id": "gem6",
       "type": "Gems",
-      "value": 250
+      "value": 1600
     },
     {
       "id": "gem7",
       "type": "Gems",
-      "value": 250
-    },
-    {
-      "id": "gem8",
-      "type": "Gems",
-      "value": 500
-    },
-    {
-      "id": "gem9",
-      "type": "Gems",
-      "value": 500
-    },
-    {
-      "id": "gem10",
-      "type": "Gems",
-      "value": 500
-    },
-    {
-      "id": "gem11",
-      "type": "Gems",
-      "value": 500
+      "value": 1600
     },
     {
       "id": "ad0",
@@ -68,55 +48,15 @@
     {
       "id": "ad1",
       "type": "Ads",
-      "value": 4
+      "value": 6
     },
     {
       "id": "ad2",
       "type": "Ads",
-      "value": 4
+      "value": 8
     },
     {
       "id": "ad3",
-      "type": "Ads",
-      "value": 4
-    },
-    {
-      "id": "ad4",
-      "type": "Ads",
-      "value": 8
-    },
-    {
-      "id": "ad5",
-      "type": "Ads",
-      "value": 8
-    },
-    {
-      "id": "ad6",
-      "type": "Ads",
-      "value": 8
-    },
-    {
-      "id": "ad7",
-      "type": "Ads",
-      "value": 8
-    },
-    {
-      "id": "ad8",
-      "type": "Ads",
-      "value": 12
-    },
-    {
-      "id": "ad9",
-      "type": "Ads",
-      "value": 12
-    },
-    {
-      "id": "ad10",
-      "type": "Ads",
-      "value": 12
-    },
-    {
-      "id": "ad11",
       "type": "Ads",
       "value": 12
     },
@@ -128,55 +68,15 @@
     {
       "id": "paid1",
       "type": "Paid",
-      "value": 0.99
+      "value": 2.49
     },
     {
       "id": "paid2",
       "type": "Paid",
-      "value": 0.99
+      "value": 4.99
     },
     {
       "id": "paid3",
-      "type": "Paid",
-      "value": 0.99
-    },
-    {
-      "id": "paid4",
-      "type": "Paid",
-      "value": 2.49
-    },
-    {
-      "id": "paid5",
-      "type": "Paid",
-      "value": 2.49
-    },
-    {
-      "id": "paid6",
-      "type": "Paid",
-      "value": 2.49
-    },
-    {
-      "id": "paid7",
-      "type": "Paid",
-      "value": 2.49
-    },
-    {
-      "id": "paid8",
-      "type": "Paid",
-      "value": 4.99
-    },
-    {
-      "id": "paid9",
-      "type": "Paid",
-      "value": 4.99
-    },
-    {
-      "id": "paid10",
-      "type": "Paid",
-      "value": 4.99
-    },
-    {
-      "id": "paid11",
       "type": "Paid",
       "value": 4.99
     }

@@ -8,14 +8,15 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     public static Action<PlayerData> UpdatePlayerDataOnUI;
     public static Action<string> OnUpdateRewardTimer;
     public static Action OnRewardAvailable;
-    [SerializeField] private PlayerData playerData;
+    public PlayerData playerData;
     private DateTime rewardsDateTime;
     [SerializeField] private TimeSpan rewardTimeSpan;
+    public bool isPlayerDataLoaded = false;
 
     protected override void Awake()
     {
         base.Awake();
-        BallController.OnGameOver += OnGameOver;
+        PlayerController.OnGameOver += OnGameOver;
         GpsManager.OnCloudDataLoaded += OnCloudDataLoaded;
     }
 
@@ -28,7 +29,7 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
 
     private void OnDestroy()
     {
-        BallController.OnGameOver -= OnGameOver;
+        PlayerController.OnGameOver -= OnGameOver;
         GpsManager.OnCloudDataLoaded -= OnCloudDataLoaded;
     }
 
@@ -45,6 +46,7 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
             playerData = JsonUtility.FromJson<PlayerData>(cloudData);
             rewardsDateTime = JsonUtility.FromJson<JsonDateTime>(playerData.nextRewardDateTime);
         }
+        isPlayerDataLoaded = true;
         UpgradeSaveOfLastVersion();
         OnPlayerDataLoaded?.Invoke();
         InvokeRepeating("CheckReward", 1f, 1f);
@@ -75,6 +77,12 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
 
 
     #region Get Set Player Data
+
+    public bool IsIdUnloced(string id)
+    {
+        return playerData.unlockedBallIds.Contains(id);
+    }
+
     public string CurrentSelectedBallId
     {
         get { return playerData.currentBallId; }
@@ -149,6 +157,14 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         playerData.gems += adder;
     }
 
+    public void DecrementGems(int adder)
+    {
+        if (playerData.gems >= adder)
+        {
+            playerData.gems -= adder;
+        }
+    }
+
     public void IncrementRetries()
     {
         playerData.retries++;
@@ -157,6 +173,14 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     public void SetHighScore(int highScore)
     {
         playerData.highScore = highScore;
+    }
+
+    public void AddUnlockedId(string ballId)
+    {
+        if (!playerData.unlockedBallIds.Contains(ballId))
+        {
+            playerData.unlockedBallIds.Add(ballId);
+        }
     }
     #endregion
 
@@ -210,6 +234,7 @@ public class PlayerData
         highScore = 0;
         retries = 0;
         unlockedBallIds = new List<string>();
+        unlockedBallIds.Add("gem0");
         currentBallId = "gem0";
         nextRewardDateTime = JsonUtility.ToJson((JsonDateTime)DateTime.UtcNow);
         isSoundEnabled = true;
