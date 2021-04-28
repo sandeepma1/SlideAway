@@ -42,6 +42,8 @@ public class UiStartCanvas : MonoBehaviour
     private float topHideYPos;
     private float leftHideXPos;
     private float rightHideXPos;
+    private float leftShowXPos = 15;
+    private float rightShowXPos = -15;
     private const float animSpeed = 0.25f;
 
     private void Awake()
@@ -91,6 +93,8 @@ public class UiStartCanvas : MonoBehaviour
         topHideYPos = topPanelRect.rect.height + 100;
         leftHideXPos = leftButtonsRect.rect.width + 100;
         rightHideXPos = rightButtonsRect.rect.width + 100;
+        leftShowXPos = leftButtonsRect.anchoredPosition.x;
+        rightShowXPos = rightButtonsRect.anchoredPosition.x;
     }
 
     private void ToggleUiStartPanel(bool isVisible)
@@ -100,8 +104,8 @@ public class UiStartCanvas : MonoBehaviour
         {
             mainPanel.SetActive(isVisible);
             topPanelRect.DOAnchorPosY(0, animSpeed);
-            leftButtonsRect.DOAnchorPosX(0, animSpeed);
-            rightButtonsRect.DOAnchorPosX(0, animSpeed);
+            leftButtonsRect.DOAnchorPosX(leftShowXPos, animSpeed);
+            rightButtonsRect.DOAnchorPosX(rightShowXPos, animSpeed);
         }
         else
         {
@@ -129,7 +133,6 @@ public class UiStartCanvas : MonoBehaviour
     {
         rewardsButton.interactable = false;
         PlayerDataManager.Instance.RewardDateTime = DateTime.UtcNow.AddHours(AppData.nextRewardInHours);
-        //PlayerDataManager.Instance.RewardDateTime = DateTime.UtcNow.AddSeconds(60);
         PlayerDataManager.Instance.SaveGameUserDataOnCloud();
         StartCoroutine(RewardPlayer());
     }

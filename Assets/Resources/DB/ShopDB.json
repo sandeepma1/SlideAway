@@ -1,5 +1,169 @@
 {
-  "ShopBallItems": [
+  "BallItems": [
+    {
+      "id": "gem0",
+      "type": "Gems",
+      "value": 100
+    },
+    {
+      "id": "gem1",
+      "type": "Gems",
+      "value": 100
+    },
+    {
+      "id": "gem2",
+      "type": "Gems",
+      "value": 250
+    },
+    {
+      "id": "gem3",
+      "type": "Gems",
+      "value": 250
+    },
+    {
+      "id": "gem4",
+      "type": "Gems",
+      "value": 750
+    },
+    {
+      "id": "gem5",
+      "type": "Gems",
+      "value": 750
+    },
+    {
+      "id": "gem6",
+      "type": "Gems",
+      "value": 1600
+    },
+    {
+      "id": "gem7",
+      "type": "Gems",
+      "value": 1600
+    },
+    {
+      "id": "ad0",
+      "type": "Ads",
+      "value": 4
+    },
+    {
+      "id": "ad1",
+      "type": "Ads",
+      "value": 6
+    },
+    {
+      "id": "ad2",
+      "type": "Ads",
+      "value": 8
+    },
+    {
+      "id": "ad3",
+      "type": "Ads",
+      "value": 12
+    },
+    {
+      "id": "paid0",
+      "type": "Paid",
+      "value": 0.99
+    },
+    {
+      "id": "paid1",
+      "type": "Paid",
+      "value": 2.49
+    },
+    {
+      "id": "paid2",
+      "type": "Paid",
+      "value": 4.99
+    },
+    {
+      "id": "paid3",
+      "type": "Paid",
+      "value": 4.99
+    }
+  ],
+  "FloorItems": [
+    {
+      "id": "gem0",
+      "type": "Gems",
+      "value": 100
+    },
+    {
+      "id": "gem1",
+      "type": "Gems",
+      "value": 100
+    },
+    {
+      "id": "gem2",
+      "type": "Gems",
+      "value": 250
+    },
+    {
+      "id": "gem3",
+      "type": "Gems",
+      "value": 250
+    },
+    {
+      "id": "gem4",
+      "type": "Gems",
+      "value": 750
+    },
+    {
+      "id": "gem5",
+      "type": "Gems",
+      "value": 750
+    },
+    {
+      "id": "gem6",
+      "type": "Gems",
+      "value": 1600
+    },
+    {
+      "id": "gem7",
+      "type": "Gems",
+      "value": 1600
+    },
+    {
+      "id": "ad0",
+      "type": "Ads",
+      "value": 4
+    },
+    {
+      "id": "ad1",
+      "type": "Ads",
+      "value": 6
+    },
+    {
+      "id": "ad2",
+      "type": "Ads",
+      "value": 8
+    },
+    {
+      "id": "ad3",
+      "type": "Ads",
+      "value": 12
+    },
+    {
+      "id": "paid0",
+      "type": "Paid",
+      "value": 0.99
+    },
+    {
+      "id": "paid1",
+      "type": "Paid",
+      "value": 2.49
+    },
+    {
+      "id": "paid2",
+      "type": "Paid",
+      "value": 4.99
+    },
+    {
+      "id": "paid3",
+      "type": "Paid",
+      "value": 4.99
+    }
+  ],
+  "BackgroundItems": [
     {
       "id": "gem0",
       "type": "Gems",

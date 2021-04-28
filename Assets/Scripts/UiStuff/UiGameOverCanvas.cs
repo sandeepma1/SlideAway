@@ -38,7 +38,7 @@ public class UiGameOverCanvas : MonoBehaviour
 
     private void ShareAdButtonClicked()
     {
-
+        ShareManager.OnShareAction?.Invoke();
     }
 
     private void GameOver()

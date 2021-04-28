@@ -18,25 +18,35 @@ public class UiBallShopCanvas : MonoBehaviour
     [SerializeField] private Color selectTabColor;
     [SerializeField] private Color deselectTabColor;
     [SerializeField] private ScrollRect mainScrollRect;
-    [SerializeField] private UiBallShopItem uiShopBallItemPrefab;
+    [SerializeField] private UiShopItem uiShopBallItemPrefab;
+    [SerializeField] private UiShopItem uiShopFloorItemPrefab;
+    [SerializeField] private UiShopItem uiShopBackgroundItemPrefab;
     [SerializeField] private UiTabButton[] uiTabButtons;
     [SerializeField] private RectTransform[] contents;
-    [SerializeField] private RectTransform itemSelector;
+    [SerializeField] private RectTransform[] itemSelectors;
+    //[SerializeField] private RectTransform floorItemSelector;
+    //[SerializeField] private RectTransform backgroundItemSelector;
     private float panelHeight;
     private int lastClickedTabId;
-    private ShopItems shopItems;
-    private Dictionary<string, UiBallShopItem> uiShopBallItems = new Dictionary<string, UiBallShopItem>();
+    private ShopItems allShopItems;
+    private Dictionary<string, UiShopItem> uiBallItems = new Dictionary<string, UiShopItem>();
+    private Dictionary<string, UiShopItem> uiFloorItems = new Dictionary<string, UiShopItem>();
+    private Dictionary<string, UiShopItem> uiBackgroundItems = new Dictionary<string, UiShopItem>();
     private bool isPlayerDataLoaded = false;
     private bool isShopCreated = false;
-    private ShopBallItem curentSelectedBallItem;
-    private ShopBallItem currentSelectedUnlocedBallItem;
+    private ShopItem curentSelectedBallItem;
+    private ShopItem currentSelectedUnlocedBallItem;
+    private ShopItem curentSelectedFloorItem;
+    private ShopItem currentSelectedUnlocedFloorItem;
+    private ShopItem curentSelectedBackgroundItem;
+    private ShopItem currentSelectedUnlocedBackgroundItem;
 
     private void Awake()
     {
         PlayerDataManager.OnPlayerDataLoaded += OnPlayerDataLoaded;
         UiStartCanvas.OnShopButtonPressed += OnShopButtonPressed;
         closeButton.onClick.AddListener(HideShopMenu);
-        unlockButton.onClick.AddListener(OnUnlockButtonClicked);
+        unlockButton.onClick.AddListener(OnBallUnlockButtonClicked);
         watchAdButton.onClick.AddListener(OnWatchAdButtonClicked);
         StartCoroutine(GetMainPanelHeight());
     }
@@ -51,7 +61,7 @@ public class UiBallShopCanvas : MonoBehaviour
         PlayerDataManager.OnPlayerDataLoaded -= OnPlayerDataLoaded;
         UiStartCanvas.OnShopButtonPressed -= OnShopButtonPressed;
         closeButton.onClick.RemoveListener(HideShopMenu);
-        unlockButton.onClick.RemoveListener(OnUnlockButtonClicked);
+        unlockButton.onClick.RemoveListener(OnBallUnlockButtonClicked);
         watchAdButton.onClick.RemoveListener(OnWatchAdButtonClicked);
     }
 
@@ -59,6 +69,7 @@ public class UiBallShopCanvas : MonoBehaviour
     {
         GameAdManager.OnWatchAdClicked?.Invoke();
     }
+
 
     #region Show/Hide main Store menu
     private IEnumerator GetMainPanelHeight()
@@ -68,7 +79,7 @@ public class UiBallShopCanvas : MonoBehaviour
         for (int i = 0; i < contents.Length; i++)
         {
             float cellSize = contents[i].GetComponent<GridLayoutGroup>().FitGridCell();
-            itemSelector.sizeDelta = new Vector2(cellSize, cellSize);
+            itemSelectors[i].sizeDelta = new Vector2(cellSize, cellSize);
             contents[i].gameObject.SetActive(false);
         }
         contents[0].gameObject.SetActive(true);
@@ -105,7 +116,7 @@ public class UiBallShopCanvas : MonoBehaviour
             .OnComplete(() => mainPanel.gameObject.SetActive(false));
         UiStartCanvas.OnToggleUiStartPanel?.Invoke(true);
 
-        OnShopBallButtonClicked(currentSelectedUnlocedBallItem);
+        OnBallButtonClicked(currentSelectedUnlocedBallItem);
     }
     #endregion
 
@@ -144,7 +155,7 @@ public class UiBallShopCanvas : MonoBehaviour
     {
         isPlayerDataLoaded = true;
         CreateAllBallItems();
-        OnShopBallButtonClicked(uiShopBallItems[PlayerDataManager.Instance.CurrentSelectedBallId].shopBallItem);
+        OnBallButtonClicked(uiBallItems[PlayerDataManager.Instance.CurrentSelectedBallId].shopItem);
     }
 
     #region Ball Buttons
@@ -156,27 +167,54 @@ public class UiBallShopCanvas : MonoBehaviour
         }
         isShopCreated = true;
         TextAsset mytxtData = (TextAsset)Resources.Load(AppData.shopItemsDbJsonPath);
-        shopItems = JsonUtility.FromJson<ShopItems>(mytxtData.text);
-        for (int i = 0; i < shopItems.ShopBallItems.Count; i++)
+        allShopItems = JsonUtility.FromJson<ShopItems>(mytxtData.text);
+        for (int i = 0; i < allShopItems.BallItems.Count; i++)
         {
-            Enum.TryParse(shopItems.ShopBallItems[i].type, out shopItems.ShopBallItems[i].eballTypes);
-            shopItems.ShopBallItems[i].isUnlocked = PlayerDataManager.Instance.IsIdUnloced(shopItems.ShopBallItems[i].id);
+            Enum.TryParse(allShopItems.BallItems[i].type, out allShopItems.BallItems[i].typeEnum);
+            allShopItems.BallItems[i].isUnlocked = PlayerDataManager.Instance.IsBallIdUnloced(allShopItems.BallItems[i].id);
+        }
+        for (int i = 0; i < allShopItems.FloorItems.Count; i++)
+        {
+            Enum.TryParse(allShopItems.FloorItems[i].type, out allShopItems.FloorItems[i].typeEnum);
+            allShopItems.FloorItems[i].isUnlocked = PlayerDataManager.Instance.IsFloorIdUnloced(allShopItems.FloorItems[i].id);
+        }
+        for (int i = 0; i < allShopItems.BackgroundItems.Count; i++)
+        {
+            Enum.TryParse(allShopItems.BackgroundItems[i].type, out allShopItems.BackgroundItems[i].typeEnum);
+            allShopItems.BackgroundItems[i].isUnlocked = PlayerDataManager.Instance.IsBackgroundIdUnloced(allShopItems.BackgroundItems[i].id);
         }
 
-        for (int i = 0; i < shopItems.ShopBallItems.Count; i++)
+        for (int i = 0; i < allShopItems.BallItems.Count; i++)
         {
-            UiBallShopItem uiShopBallItem = Instantiate(uiShopBallItemPrefab, contents[0]);
-            uiShopBallItem.InitButton(shopItems.ShopBallItems[i]);
-            uiShopBallItem.OnButtonClicked += OnShopBallButtonClicked;
-            uiShopBallItems.Add(shopItems.ShopBallItems[i].id, uiShopBallItem);
+            UiShopItem uiShopItem = Instantiate(uiShopBallItemPrefab, contents[0]);
+            uiShopItem.InitButton(allShopItems.BallItems[i], AppData.allBallIconsPath + "/" + allShopItems.BallItems[i].id);
+            uiShopItem.OnButtonClicked += OnBallButtonClicked;
+            uiBallItems.Add(allShopItems.BallItems[i].id, uiShopItem);
         }
-        SetItemSelector(uiShopBallItems[PlayerDataManager.Instance.CurrentSelectedBallId].GetRect().transform);
+        for (int i = 0; i < allShopItems.FloorItems.Count; i++)
+        {
+            UiShopItem uiShopItem = Instantiate(uiShopFloorItemPrefab, contents[1]);
+            uiShopItem.InitButton(allShopItems.FloorItems[i], AppData.allFloorIconsPath + "/" + allShopItems.FloorItems[i].id);
+            uiShopItem.OnButtonClicked += OnShopFloorButtonClicked;
+            uiFloorItems.Add(allShopItems.FloorItems[i].id, uiShopItem);
+        }
+        for (int i = 0; i < allShopItems.BackgroundItems.Count; i++)
+        {
+            UiShopItem uiShopItem = Instantiate(uiShopBackgroundItemPrefab, contents[2]);
+            uiShopItem.InitButton(allShopItems.FloorItems[i], AppData.allBackgroundIconsPath + "/" + allShopItems.BackgroundItems[i].id);
+            //uiShopBallItem.OnButtonClicked += OnShopBackgroundButtonClicked;
+            uiBackgroundItems.Add(allShopItems.BackgroundItems[i].id, uiShopItem);
+        }
+        SetItemSelector(uiBallItems[PlayerDataManager.Instance.CurrentSelectedBallId].GetRect().transform, 0);
+        SetItemSelector(uiFloorItems[PlayerDataManager.Instance.CurrentSelectedFloorId].GetRect().transform, 0);
+        SetItemSelector(uiBackgroundItems[PlayerDataManager.Instance.CurrentSelectedBackgroundId].GetRect().transform, 0);
     }
 
-    private void OnShopBallButtonClicked(ShopBallItem shopBallItem)
+    #region Ball
+    private void OnBallButtonClicked(ShopItem shopBallItem)
     {
         curentSelectedBallItem = shopBallItem;
-        if (uiShopBallItems.ContainsKey(curentSelectedBallItem.id))
+        if (uiBallItems.ContainsKey(curentSelectedBallItem.id))
         {
             if (curentSelectedBallItem.isUnlocked)
             {
@@ -185,18 +223,18 @@ public class UiBallShopCanvas : MonoBehaviour
 
             OnBallMaterialChanged?.Invoke(
                 Resources.Load(AppData.allBallMatPath + "/" + curentSelectedBallItem.id, typeof(Material)) as Material);
-            SetItemSelector(uiShopBallItems[curentSelectedBallItem.id].transform);
+            SetItemSelector(uiBallItems[curentSelectedBallItem.id].transform, 0);
             PlayerDataManager.Instance.CurrentSelectedBallId = curentSelectedBallItem.id;
-            unlockButton.gameObject.SetActive(!PlayerDataManager.Instance.IsIdUnloced(curentSelectedBallItem.id));
-            switch (curentSelectedBallItem.eballTypes)
+            unlockButton.gameObject.SetActive(!PlayerDataManager.Instance.IsBallIdUnloced(curentSelectedBallItem.id));
+            switch (curentSelectedBallItem.typeEnum)
             {
-                case BallType.Gems:
+                case ShopItemType.Gems:
                     unlockButtonText.text = "Unlock " + curentSelectedBallItem.value + AppData.gemIcon;
                     break;
-                case BallType.Ads:
+                case ShopItemType.Ads:
                     unlockButtonText.text = "Watch " + curentSelectedBallItem.value + " " + AppData.adIcon;
                     break;
-                case BallType.Paid:
+                case ShopItemType.Paid:
                     unlockButtonText.text = "Unlock $" + curentSelectedBallItem.value;
                     break;
                 default:
@@ -205,18 +243,18 @@ public class UiBallShopCanvas : MonoBehaviour
         }
     }
 
-    private void OnUnlockButtonClicked()
+    private void OnBallUnlockButtonClicked()
     {
-        switch (curentSelectedBallItem.eballTypes)
+        switch (curentSelectedBallItem.typeEnum)
         {
-            case BallType.Gems:
+            case ShopItemType.Gems:
                 if (PlayerDataManager.Instance.GetGems() >= curentSelectedBallItem.value)
                 {
                     curentSelectedBallItem.isUnlocked = true;
                     PlayerDataManager.Instance.AddUnlockedId(curentSelectedBallItem.id);
                     PlayerDataManager.Instance.DecrementGems((int)curentSelectedBallItem.value);
                     unlockButton.gameObject.SetActive(false);
-                    uiShopBallItems[curentSelectedBallItem.id].InitButton(curentSelectedBallItem);
+                    uiBallItems[curentSelectedBallItem.id].InitButton(curentSelectedBallItem);
                     currentSelectedUnlocedBallItem = curentSelectedBallItem;
                 }
                 else
@@ -224,21 +262,89 @@ public class UiBallShopCanvas : MonoBehaviour
                     Debug.LogError("Gems are less, by more");
                 }
                 break;
-            case BallType.Ads:
+            case ShopItemType.Ads:
                 break;
-            case BallType.Paid:
+            case ShopItemType.Paid:
                 break;
             default:
                 break;
         }
     }
 
-    private void SetItemSelector(Transform parent)
+    private void SetItemSelector(Transform parent, int itemSelectorId)
     {
-        itemSelector.SetParent(parent);
-        itemSelector.DOAnchorPos(Vector2.zero, 0.15f);
-        itemSelector.SetAsFirstSibling();
+        itemSelectors[itemSelectorId].SetParent(parent);
+        itemSelectors[itemSelectorId].DOAnchorPos(Vector2.zero, 0.15f);
+        itemSelectors[itemSelectorId].SetAsFirstSibling();
     }
+    #endregion
+
+    #region Floor
+    private void OnShopFloorButtonClicked(ShopItem shopItem)
+    {
+        curentSelectedFloorItem = shopItem;
+        if (uiFloorItems.ContainsKey(curentSelectedBallItem.id))
+        {
+            if (curentSelectedBallItem.isUnlocked)
+            {
+                currentSelectedUnlocedBallItem = curentSelectedBallItem;
+            }
+
+            OnBallMaterialChanged?.Invoke(
+                Resources.Load(AppData.allBallMatPath + "/" + curentSelectedBallItem.id, typeof(Material)) as Material);
+            SetItemSelector(uiBallItems[curentSelectedBallItem.id].transform, 1);
+            PlayerDataManager.Instance.CurrentSelectedBallId = curentSelectedBallItem.id;
+            unlockButton.gameObject.SetActive(!PlayerDataManager.Instance.IsBallIdUnloced(curentSelectedBallItem.id));
+            switch (curentSelectedBallItem.typeEnum)
+            {
+                case ShopItemType.Gems:
+                    unlockButtonText.text = "Unlock " + curentSelectedBallItem.value + AppData.gemIcon;
+                    break;
+                case ShopItemType.Ads:
+                    unlockButtonText.text = "Watch " + curentSelectedBallItem.value + " " + AppData.adIcon;
+                    break;
+                case ShopItemType.Paid:
+                    unlockButtonText.text = "Unlock $" + curentSelectedBallItem.value;
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    private void OnFloorUnlockButtonClicked()
+    {
+        switch (curentSelectedBallItem.typeEnum)
+        {
+            case ShopItemType.Gems:
+                if (PlayerDataManager.Instance.GetGems() >= curentSelectedBallItem.value)
+                {
+                    curentSelectedBallItem.isUnlocked = true;
+                    PlayerDataManager.Instance.AddUnlockedId(curentSelectedBallItem.id);
+                    PlayerDataManager.Instance.DecrementGems((int)curentSelectedBallItem.value);
+                    unlockButton.gameObject.SetActive(false);
+                    uiBallItems[curentSelectedBallItem.id].InitButton(curentSelectedBallItem);
+                    currentSelectedUnlocedBallItem = curentSelectedBallItem;
+                }
+                else
+                {
+                    Debug.LogError("Gems are less, by more");
+                }
+                break;
+            case ShopItemType.Ads:
+                break;
+            case ShopItemType.Paid:
+                break;
+            default:
+                break;
+        }
+    }
+
+    #endregion
+
+    #region Background
+    #endregion
+
     #endregion
 }
 
@@ -246,20 +352,21 @@ public class UiBallShopCanvas : MonoBehaviour
 [System.Serializable]
 public class ShopItems
 {
-    public List<ShopBallItem> ShopBallItems;
+    public List<ShopItem> BallItems;
+    public List<ShopItem> FloorItems;
+    public List<ShopItem> BackgroundItems;
 }
 
 [System.Serializable]
-public class ShopBallItem
+public class ShopItem
 {
     public string id;
     public string type;
     public float value;
-    public BallType eballTypes;
+    public ShopItemType typeEnum;
     public bool isUnlocked;
-    public int incrementValue;
 }
-public enum BallType
+public enum ShopItemType
 {
     Gems,
     Ads,

@@ -78,15 +78,37 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
 
     #region Get Set Player Data
 
-    public bool IsIdUnloced(string id)
+    public bool IsBallIdUnloced(string id)
     {
         return playerData.unlockedBallIds.Contains(id);
+    }
+
+    public bool IsFloorIdUnloced(string id)
+    {
+        return playerData.unlockedFloorIds.Contains(id);
+    }
+
+    public bool IsBackgroundIdUnloced(string id)
+    {
+        return playerData.unlockedBackgroundIds.Contains(id);
     }
 
     public string CurrentSelectedBallId
     {
         get { return playerData.currentBallId; }
         set { playerData.currentBallId = value; }
+    }
+
+    public string CurrentSelectedFloorId
+    {
+        get { return playerData.currentFloorId; }
+        set { playerData.currentFloorId = value; }
+    }
+
+    public string CurrentSelectedBackgroundId
+    {
+        get { return playerData.currentBackgroundId; }
+        set { playerData.currentBackgroundId = value; }
     }
 
     public bool IsSoundEnabled
@@ -223,7 +245,14 @@ public class PlayerData
     public int highScore = 0;
     public int retries = 0;
     public List<string> unlockedBallIds = new List<string>();
+    public List<AdsWatched> adsWatchedBall = new List<AdsWatched>();
     public string currentBallId = "";
+    public List<string> unlockedFloorIds = new List<string>();
+    public List<AdsWatched> adsWatchedFloor = new List<AdsWatched>();
+    public string currentFloorId = "";
+    public List<string> unlockedBackgroundIds = new List<string>();
+    public List<AdsWatched> adsWatchedBackground = new List<AdsWatched>();
+    public string currentBackgroundId = "";
     public string nextRewardDateTime = "";
     public bool isSoundEnabled = true;
     public bool isVibrateEnabled = true;
@@ -236,12 +265,22 @@ public class PlayerData
         unlockedBallIds = new List<string>();
         unlockedBallIds.Add("gem0");
         currentBallId = "gem0";
+        unlockedFloorIds.Add("gem0");
+        currentFloorId = "gem0";
+        unlockedBackgroundIds.Add("gem0");
+        currentBackgroundId = "gem0";
         nextRewardDateTime = JsonUtility.ToJson((JsonDateTime)DateTime.UtcNow);
         isSoundEnabled = true;
         isVibrateEnabled = true;
     }
 }
 
+public class AdsWatched
+{
+    public string id;
+    public int count;
+    public int total;
+}
 [System.Serializable]
 public class JsonDateTime
 {
