@@ -30,13 +30,13 @@ public class UiShopItem : MonoBehaviour
         this.shopItem = shopItem;
         switch (shopItem.typeEnum)
         {
-            case ShopItemType.Gems:
+            case PurchaseType.Gems:
                 valueText.text = this.shopItem.value + AppData.gemIcon;
                 break;
-            case ShopItemType.Ads:
+            case PurchaseType.Ads:
                 valueText.text = this.shopItem.value + AppData.adIcon;
                 break;
-            case ShopItemType.Paid:
+            case PurchaseType.Paid:
                 valueText.text = "$" + this.shopItem.value;
                 break;
             default:

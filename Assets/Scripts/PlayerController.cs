@@ -23,16 +23,16 @@ public class PlayerController : MonoBehaviour
 
     private void Awake()
     {
-        UiBallShopCanvas.OnIsShopMenuVisible += OnIsShopMenuVisible;
+        UiShopCanvas.OnIsShopMenuVisible += OnIsShopMenuVisible;
         UiStartCanvas.OnGameStart += OnGameStart;
-        UiBallShopCanvas.OnBallMaterialChanged += OnBallMaterialChanged;
+        UiShopCanvas.OnBallChanged += OnBallMaterialChanged;
     }
 
     private void OnDestroy()
     {
-        UiBallShopCanvas.OnIsShopMenuVisible -= OnIsShopMenuVisible;
+        UiShopCanvas.OnIsShopMenuVisible -= OnIsShopMenuVisible;
         UiStartCanvas.OnGameStart -= OnGameStart;
-        UiBallShopCanvas.OnBallMaterialChanged -= OnBallMaterialChanged;
+        UiShopCanvas.OnBallChanged -= OnBallMaterialChanged;
     }
 
     private void Start()
@@ -163,9 +163,9 @@ public class PlayerController : MonoBehaviour
         return result;
     }
 
-    private void OnBallMaterialChanged(Material material)
+    private void OnBallMaterialChanged(string id)
     {
-        ballMeshRenderer.material = material;
+        ballMeshRenderer.material = Resources.Load<Material>(AppData.allBallMatPath + "/" + id);
     }
 
     private void OnIsShopMenuVisible(bool isShopVisible)

@@ -19,14 +19,14 @@ public class CameraFollow : MonoBehaviour
         offset = ball.transform.position - transform.position;
         PlayerController.OnGameOver += OnGameOver;
         UiStartCanvas.OnGameStart += OnGameStart;
-        UiBallShopCanvas.OnIsShopMenuVisible += OnIsShopMenuVisible;
+        UiShopCanvas.OnIsShopMenuVisible += OnIsShopMenuVisible;
     }
 
     private void OnDestroy()
     {
         PlayerController.OnGameOver -= OnGameOver;
         UiStartCanvas.OnGameStart -= OnGameStart;
-        UiBallShopCanvas.OnIsShopMenuVisible -= OnIsShopMenuVisible;
+        UiShopCanvas.OnIsShopMenuVisible -= OnIsShopMenuVisible;
     }
 
     private void Update()

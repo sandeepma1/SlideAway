@@ -18,7 +18,8 @@ public class TileManager : MonoBehaviour
     [SerializeField] private GameObject[] tilePrefab;
     [SerializeField] private GameObject currentTile;
     [SerializeField] private int preCreateTiles = 10;
-
+    [SerializeField] private Material floorMaterial;
+    [SerializeField] private Material startfloorMaterial;
     public Stack<GameObject> LeftTiles
     {
         get { return leftTiles; }
@@ -32,6 +33,12 @@ public class TileManager : MonoBehaviour
     }
     private Stack<GameObject> topTiles = new Stack<GameObject>();
 
+
+    private void Awake()
+    {
+        UiShopCanvas.OnFloorChanged += OnFloorChanged;
+    }
+
     private void Start()
     {
         CreateTiles(preCreateTiles * 2);
@@ -39,6 +46,24 @@ public class TileManager : MonoBehaviour
         {
             SpawnTile();
         }
+    }
+
+    private void OnDestroy()
+    {
+        UiShopCanvas.OnFloorChanged -= OnFloorChanged;
+    }
+
+    private void OnFloorChanged(string floorId)
+    {
+        Material mat = Resources.Load<Material>(AppData.allFloorMatPath + "/" + floorId);
+        if (mat == null)
+        {
+            Debug.LogError("Null Material!!");
+        }
+        floorMaterial.CopyPropertiesFromMaterial(mat);
+        startfloorMaterial.CopyPropertiesFromMaterial(mat);
+        startfloorMaterial.mainTextureScale = new Vector2(10, 10);
+        //startfloorMaterial
     }
 
     public void CreateTiles(int amount)
