@@ -8,48 +8,62 @@ using UnityEngine.UI;
 
 public class UiSingleShopPanel : MonoBehaviour
 {
-    public Action OnCloseShopPanel;
     public Action<ShopItemType, string> OnShopItemClicked;
     public ShopItemType shopItemType;
-    [SerializeField] private Button closeButton;
     [SerializeField] private Button unlockButton;
-    [SerializeField] private TextMeshProUGUI unlockButtonText;
     [SerializeField] private Button watchAdButton;
     [SerializeField] private ScrollRect mainScrollRect;
     [SerializeField] private UiShopItem uiShopItemPrefab;
     [SerializeField] private RectTransform content;
     [SerializeField] private RectTransform itemSelector;
-    private float panelHeight;
+    [SerializeField] private TextMeshProUGUI unlockButtonText;
+    private string UnlockButtonText
+    {
+        set
+        {
+            switch (curentSelectedItem.typeEnum)
+            {
+                case PurchaseType.Gems:
+                    unlockButtonText.text = "Unlock " + value + AppData.gemIcon;
+                    break;
+                case PurchaseType.Ads:
+                    unlockButtonText.text = "Watch " + value + " " + AppData.adIcon;
+                    break;
+                case PurchaseType.Paid:
+                    unlockButtonText.text = "Unlock $" + value;
+                    break;
+                default:
+                    unlockButtonText.text = value.ToString();
+                    break;
+            }
+        }
+    }
     private List<ShopItem> shopItems;
     private Dictionary<string, UiShopItem> uishopItems = new Dictionary<string, UiShopItem>();
-    private bool isShopCreated = false;
     private ShopItem curentSelectedItem;
     private ShopItem currentSelectedUnlocedItem;
+    private bool isThisPanelCreated = false;
 
     private void Awake()
     {
-        closeButton.onClick.AddListener(HideShopMenu);
+        UiShopCanvas.OnIsShopMenuVisible += OnIsShopMenuVisible;
         unlockButton.onClick.AddListener(OnUnlockButtonClicked);
         watchAdButton.onClick.AddListener(OnWatchAdButtonClicked);
     }
 
-    private void Start()
-    {
-        StartCoroutine(GetMainPanelHeight());
-    }
-
     private void OnDestroy()
     {
-        closeButton.onClick.RemoveListener(HideShopMenu);
+        UiShopCanvas.OnIsShopMenuVisible -= OnIsShopMenuVisible;
         unlockButton.onClick.RemoveListener(OnUnlockButtonClicked);
         watchAdButton.onClick.RemoveListener(OnWatchAdButtonClicked);
     }
 
-    private IEnumerator GetMainPanelHeight()
+    private void OnIsShopMenuVisible(bool isShopMenuVisible) //If shop is closed
     {
-        yield return new WaitForEndOfFrame();
-        float cellSize = content.GetComponent<GridLayoutGroup>().FitGridCell();
-        itemSelector.sizeDelta = new Vector2(cellSize, cellSize);
+        if (!isShopMenuVisible)
+        {
+            OnItemButtonClicked(currentSelectedUnlocedItem);
+        }
     }
 
     private void OnWatchAdButtonClicked()
@@ -57,20 +71,15 @@ public class UiSingleShopPanel : MonoBehaviour
         GameAdManager.OnWatchAdClicked?.Invoke();
     }
 
-    private void HideShopMenu()
-    {
-        OnCloseShopPanel?.Invoke();
-        OnItemButtonClicked(currentSelectedUnlocedItem);
-    }
-
     public void CreateShopItems(List<ShopItem> shopItems, ShopItemType shopItemType)
     {
-        this.shopItemType = shopItemType;
-        if (isShopCreated)
+        if (isThisPanelCreated)
         {
             return;
         }
-        isShopCreated = true;
+        isThisPanelCreated = true;
+        this.shopItemType = shopItemType;
+        itemSelector.sizeDelta = content.GetComponent<GridLayoutGroup>().FitGridCell2d();
         this.shopItems = shopItems;
         for (int i = 0; i < this.shopItems.Count; i++)
         {
@@ -90,40 +99,83 @@ public class UiSingleShopPanel : MonoBehaviour
                     break;
             }
             uiShopItem.OnButtonClicked += OnItemButtonClicked;
-            uishopItems.Add(this.shopItems[i].id, uiShopItem);
+            if (!uishopItems.ContainsKey(this.shopItems[i].id))
+            {
+                uishopItems.Add(this.shopItems[i].id, uiShopItem);
+            }
+            else
+            {
+                print("Id already exists" + this.shopItems[i].id);
+            }
         }
-        SetItemSelector(uishopItems[PlayerDataManager.Instance.CurrentSelectedBallId].GetRect().transform, 0);
-        OnItemButtonClicked(uishopItems[PlayerDataManager.Instance.CurrentSelectedBallId].shopItem);
+        SetItemSelector(null);
+        gameObject.SetActive(false);
     }
 
     private void OnItemButtonClicked(ShopItem shopItem)
     {
-        curentSelectedItem = shopItem;
-        print(shopItem.id);
-        if (uishopItems.ContainsKey(curentSelectedItem.id))
+        if (!uishopItems.ContainsKey(shopItem.id))
         {
-            if (curentSelectedItem.isUnlocked)
-            {
-                currentSelectedUnlocedItem = curentSelectedItem;
-            }
-            OnShopItemClicked?.Invoke(shopItemType, curentSelectedItem.id);
-            SetItemSelector(uishopItems[curentSelectedItem.id].transform, 0);
-            PlayerDataManager.Instance.CurrentSelectedBallId = curentSelectedItem.id;
-            unlockButton.gameObject.SetActive(!PlayerDataManager.Instance.IsBallIdUnloced(curentSelectedItem.id));
-            switch (curentSelectedItem.typeEnum)
-            {
-                case PurchaseType.Gems:
-                    unlockButtonText.text = "Unlock " + curentSelectedItem.value + AppData.gemIcon;
-                    break;
-                case PurchaseType.Ads:
-                    unlockButtonText.text = "Watch " + curentSelectedItem.value + " " + AppData.adIcon;
-                    break;
-                case PurchaseType.Paid:
-                    unlockButtonText.text = "Unlock $" + curentSelectedItem.value;
-                    break;
-                default:
-                    break;
-            }
+            Hud.SetHudText?.Invoke("Something gone wrong, check UiSingleShopPanel");
+            return;
+        }
+        curentSelectedItem = shopItem;
+        if (curentSelectedItem.isUnlocked)
+        {
+            currentSelectedUnlocedItem = curentSelectedItem;
+            SaveCurrentSelectedId(currentSelectedUnlocedItem.id);
+        }
+        OnShopItemClicked?.Invoke(shopItemType, curentSelectedItem.id);
+        SetItemSelector(uishopItems[curentSelectedItem.id].transform);
+        SetUnlockButtonText(curentSelectedItem.value.ToString());
+    }
+
+    private void SetUnlockButtonText(string text = "")
+    {
+        switch (shopItemType)
+        {
+            case ShopItemType.Ball:
+                bool isUnlocked = PlayerDataManager.Instance.IsBallIdUnlocked(curentSelectedItem.id);
+                unlockButton.gameObject.SetActive(!isUnlocked);
+                if (isUnlocked)
+                {
+                    return;
+                }
+                break;
+            case ShopItemType.Floor:
+                bool isFloorUnlocked = PlayerDataManager.Instance.IsFloorIdUnlocked(curentSelectedItem.id);
+                unlockButton.gameObject.SetActive(!isFloorUnlocked);
+                if (isFloorUnlocked)
+                {
+                    return;
+                }
+                break;
+            case ShopItemType.Background:
+                bool isBackgroundUnlocked = PlayerDataManager.Instance.IsBackgroundIdUnlocked(curentSelectedItem.id);
+                unlockButton.gameObject.SetActive(!isBackgroundUnlocked);
+                if (isBackgroundUnlocked)
+                {
+                    return;
+                }
+                break;
+            default:
+                break;
+        }
+
+        switch (curentSelectedItem.typeEnum)
+        {
+            case PurchaseType.Gems:
+                unlockButtonText.text = "Unlock " + text + AppData.gemIcon;
+                break;
+            case PurchaseType.Ads:
+                unlockButtonText.text = "Watch " + text + " " + AppData.adIcon;
+                break;
+            case PurchaseType.Paid:
+                unlockButtonText.text = "Unlock $" + text;
+                break;
+            default:
+                unlockButtonText.text = text.ToString();
+                break;
         }
     }
 
@@ -134,12 +186,13 @@ public class UiSingleShopPanel : MonoBehaviour
             case PurchaseType.Gems:
                 if (PlayerDataManager.Instance.GetGems() >= curentSelectedItem.value)
                 {
+                    currentSelectedUnlocedItem = curentSelectedItem;
+                    SaveCurrentSelectedId(curentSelectedItem.id);
                     curentSelectedItem.isUnlocked = true;
-                    PlayerDataManager.Instance.AddUnlockedId(curentSelectedItem.id);
                     PlayerDataManager.Instance.DecrementGems((int)curentSelectedItem.value);
+                    SaveAddUnlockedItemId(curentSelectedItem.id);
                     unlockButton.gameObject.SetActive(false);
                     uishopItems[curentSelectedItem.id].InitButton(curentSelectedItem);
-                    currentSelectedUnlocedItem = curentSelectedItem;
                 }
                 else
                 {
@@ -155,9 +208,79 @@ public class UiSingleShopPanel : MonoBehaviour
         }
     }
 
-    private void SetItemSelector(Transform parent, int itemSelectorId)
+    private void SaveAddUnlockedItemId(string id)
     {
-        itemSelector.SetParent(parent);
+        switch (shopItemType)
+        {
+            case ShopItemType.Ball:
+                PlayerDataManager.Instance.AddBallUnlockedId(id);
+                break;
+            case ShopItemType.Floor:
+                PlayerDataManager.Instance.AddFloorUnlockedId(id);
+                break;
+            case ShopItemType.Background:
+                PlayerDataManager.Instance.AddBackgroundUnlockedId(id);
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void SaveCurrentSelectedId(string id)
+    {
+        switch (shopItemType)
+        {
+            case ShopItemType.Ball:
+                PlayerDataManager.Instance.CurrentSelectedBallId = id;
+                //unlockButton.gameObject.SetActive(!PlayerDataManager.Instance.IsBallIdUnloced(id));
+                break;
+            case ShopItemType.Floor:
+                PlayerDataManager.Instance.CurrentSelectedFloorId = id;
+                //unlockButton.gameObject.SetActive(!PlayerDataManager.Instance.IsFloorIdUnloced(id));
+                break;
+            case ShopItemType.Background:
+                PlayerDataManager.Instance.CurrentSelectedBackgroundId = id;
+                //unlockButton.gameObject.SetActive(!PlayerDataManager.Instance.IsBackgroundIdUnloced(id));
+                break;
+            default:
+                break;
+        }
+    }
+
+    private void SetItemSelector(Transform transform = null)
+    {
+        switch (shopItemType)
+        {
+            case ShopItemType.Ball:
+                if (transform == null)
+                {
+                    itemSelector.SetParent(uishopItems[PlayerDataManager.Instance.CurrentSelectedBallId].transform);
+                    OnItemButtonClicked(uishopItems[PlayerDataManager.Instance.CurrentSelectedBallId].shopItem);
+                }
+                else
+                    itemSelector.SetParent(transform);
+                break;
+            case ShopItemType.Floor:
+                if (transform == null)
+                {
+                    itemSelector.SetParent(uishopItems[PlayerDataManager.Instance.CurrentSelectedFloorId].transform);
+                    OnItemButtonClicked(uishopItems[PlayerDataManager.Instance.CurrentSelectedFloorId].shopItem);
+                }
+                else
+                    itemSelector.SetParent(transform);
+                break;
+            case ShopItemType.Background:
+                if (transform == null)
+                {
+                    itemSelector.SetParent(uishopItems[PlayerDataManager.Instance.CurrentSelectedBackgroundId].transform);
+                    OnItemButtonClicked(uishopItems[PlayerDataManager.Instance.CurrentSelectedBackgroundId].shopItem);
+                }
+                else
+                    itemSelector.SetParent(transform);
+                break;
+            default:
+                break;
+        }
         itemSelector.DOAnchorPos(Vector2.zero, 0.15f);
         itemSelector.SetAsFirstSibling();
     }

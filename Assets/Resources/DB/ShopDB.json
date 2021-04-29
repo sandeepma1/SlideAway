@@ -3,7 +3,7 @@
     {
       "id": "gem0",
       "type": "Gems",
-      "value": 100
+      "value": 0
     },
     {
       "id": "gem1",
@@ -85,80 +85,60 @@
     {
       "id": "gem0",
       "type": "Gems",
-      "value": 100
+      "value": 0
     },
     {
       "id": "gem1",
       "type": "Gems",
-      "value": 100
+      "value": 700
     },
     {
       "id": "gem2",
       "type": "Gems",
-      "value": 250
+      "value": 1200
     },
     {
       "id": "gem3",
       "type": "Gems",
-      "value": 250
+      "value": 1800
     },
     {
       "id": "gem4",
       "type": "Gems",
-      "value": 750
+      "value": 2500
     },
     {
       "id": "gem5",
       "type": "Gems",
-      "value": 750
-    },
-    {
-      "id": "gem6",
-      "type": "Gems",
-      "value": 1600
-    },
-    {
-      "id": "gem7",
-      "type": "Gems",
-      "value": 1600
+      "value": 6000
     },
     {
       "id": "ad0",
       "type": "Ads",
-      "value": 4
+      "value": 8
     },
     {
       "id": "ad1",
       "type": "Ads",
-      "value": 6
+      "value": 8
     },
     {
       "id": "ad2",
       "type": "Ads",
-      "value": 8
+      "value": 12
     },
     {
       "id": "ad3",
       "type": "Ads",
-      "value": 12
+      "value": 16
     },
     {
       "id": "paid0",
       "type": "Paid",
-      "value": 0.99
-    },
-    {
-      "id": "paid1",
-      "type": "Paid",
-      "value": 2.49
-    },
-    {
-      "id": "paid2",
-      "type": "Paid",
       "value": 4.99
     },
     {
-      "id": "paid3",
+      "id": "paid1",
       "type": "Paid",
       "value": 4.99
     }
@@ -167,62 +147,32 @@
     {
       "id": "gem0",
       "type": "Gems",
-      "value": 100
+      "value": 0
     },
     {
       "id": "gem1",
       "type": "Gems",
-      "value": 100
-    },
-    {
-      "id": "gem2",
-      "type": "Gems",
-      "value": 250
-    },
-    {
-      "id": "gem3",
-      "type": "Gems",
-      "value": 250
-    },
-    {
-      "id": "gem4",
-      "type": "Gems",
-      "value": 750
-    },
-    {
-      "id": "gem5",
-      "type": "Gems",
-      "value": 750
-    },
-    {
-      "id": "gem6",
-      "type": "Gems",
-      "value": 1600
-    },
-    {
-      "id": "gem7",
-      "type": "Gems",
-      "value": 1600
+      "value": 1500
     },
     {
       "id": "ad0",
       "type": "Ads",
-      "value": 4
+      "value": 8
     },
     {
       "id": "ad1",
       "type": "Ads",
-      "value": 6
+      "value": 8
     },
     {
       "id": "ad2",
       "type": "Ads",
-      "value": 8
+      "value": 12
     },
     {
       "id": "ad3",
       "type": "Ads",
-      "value": 12
+      "value": 16
     },
     {
       "id": "paid0",
@@ -232,15 +182,25 @@
     {
       "id": "paid1",
       "type": "Paid",
-      "value": 2.49
+      "value": 0.99
     },
     {
       "id": "paid2",
       "type": "Paid",
-      "value": 4.99
+      "value": 2.49
     },
     {
       "id": "paid3",
+      "type": "Paid",
+      "value": 2.49
+    },
+    {
+      "id": "paid4",
+      "type": "Paid",
+      "value": 4.99
+    },
+    {
+      "id": "paid5",
       "type": "Paid",
       "value": 4.99
     }

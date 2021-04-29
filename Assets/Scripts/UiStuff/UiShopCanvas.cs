@@ -4,14 +4,13 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
-using TMPro;
+
 public class UiShopCanvas : MonoBehaviour
 {
     public static Action<bool> OnIsShopMenuVisible;
     public static Action<string> OnBallChanged;
     public static Action<string> OnFloorChanged;
     public static Action<string> OnBackgroundChanged;
-
     [SerializeField] private Button closeButton;
     [SerializeField] private RectTransform mainPanel;
     [SerializeField] private Color selectTabColor;
@@ -28,12 +27,12 @@ public class UiShopCanvas : MonoBehaviour
         PlayerDataManager.OnPlayerDataLoaded += OnPlayerDataLoaded;
         UiStartCanvas.OnShopButtonPressed += OnShopButtonPressed;
         closeButton.onClick.AddListener(HideShopMenu);
-        StartCoroutine(GetMainPanelHeight());
     }
 
     private void Start()
     {
         InitTabs();
+        StartCoroutine(GetMainPanelHeight());
     }
 
     private void OnDestroy()
@@ -48,7 +47,7 @@ public class UiShopCanvas : MonoBehaviour
     private IEnumerator GetMainPanelHeight()
     {
         yield return new WaitForEndOfFrame();
-        panelHeight = mainPanel.rect.height + 200;
+        panelHeight = mainPanel.rect.height + 500;
         if (PlayerDataManager.Instance.isPlayerDataLoaded)
         {
             OnPlayerDataLoaded();
@@ -119,33 +118,28 @@ public class UiShopCanvas : MonoBehaviour
     {
         TextAsset mytxtData = (TextAsset)Resources.Load(AppData.shopItemsDbJsonPath);
         allShopItems = JsonUtility.FromJson<ShopItems>(mytxtData.text);
-
         for (int i = 0; i < allShopItems.BallItems.Count; i++)
         {
             Enum.TryParse(allShopItems.BallItems[i].type, out allShopItems.BallItems[i].typeEnum);
-            allShopItems.BallItems[i].isUnlocked = PlayerDataManager.Instance.IsBallIdUnloced(allShopItems.BallItems[i].id);
+            allShopItems.BallItems[i].isUnlocked = PlayerDataManager.Instance.IsBallIdUnlocked(allShopItems.BallItems[i].id);
         }
         for (int i = 0; i < allShopItems.FloorItems.Count; i++)
         {
             Enum.TryParse(allShopItems.FloorItems[i].type, out allShopItems.FloorItems[i].typeEnum);
-            allShopItems.FloorItems[i].isUnlocked = PlayerDataManager.Instance.IsFloorIdUnloced(allShopItems.FloorItems[i].id);
+            allShopItems.FloorItems[i].isUnlocked = PlayerDataManager.Instance.IsFloorIdUnlocked(allShopItems.FloorItems[i].id);
         }
         for (int i = 0; i < allShopItems.BackgroundItems.Count; i++)
         {
             Enum.TryParse(allShopItems.BackgroundItems[i].type, out allShopItems.BackgroundItems[i].typeEnum);
-            allShopItems.BackgroundItems[i].isUnlocked = PlayerDataManager.Instance.IsBackgroundIdUnloced(allShopItems.BackgroundItems[i].id);
+            allShopItems.BackgroundItems[i].isUnlocked = PlayerDataManager.Instance.IsBackgroundIdUnlocked(allShopItems.BackgroundItems[i].id);
         }
-
         for (int i = 0; i < uiSingleShopPanels.Length; i++)
         {
-            uiSingleShopPanels[i].gameObject.SetActive(false);
             uiSingleShopPanels[i].OnShopItemClicked += OnShopItemClicked;
-            uiSingleShopPanels[i].OnCloseShopPanel += HideShopMenu;
         }
         uiSingleShopPanels[0].CreateShopItems(allShopItems.BallItems, ShopItemType.Ball);
         uiSingleShopPanels[1].CreateShopItems(allShopItems.FloorItems, ShopItemType.Floor);
         uiSingleShopPanels[2].CreateShopItems(allShopItems.BackgroundItems, ShopItemType.Background);
-
         uiSingleShopPanels[0].gameObject.SetActive(true);
     }
 

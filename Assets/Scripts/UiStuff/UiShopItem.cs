@@ -31,13 +31,13 @@ public class UiShopItem : MonoBehaviour
         switch (shopItem.typeEnum)
         {
             case PurchaseType.Gems:
-                valueText.text = this.shopItem.value + AppData.gemIcon;
+                valueText.text = this.shopItem.value + " " + AppData.gemIcon;
                 break;
             case PurchaseType.Ads:
-                valueText.text = this.shopItem.value + AppData.adIcon;
+                valueText.text = this.shopItem.value + " " + AppData.adIcon;
                 break;
             case PurchaseType.Paid:
-                valueText.text = "$" + this.shopItem.value;
+                valueText.text = "$ " + this.shopItem.value;
                 break;
             default:
                 break;

@@ -58,7 +58,18 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         {
             playerData.highScore = PlayerPrefs.GetInt("BestScore");
             PlayerPrefs.DeleteKey("BestScore");
-            SaveGameUserDataOnCloud();
+            if (playerData.highScore >= AppData.achievementValue1)
+            {
+                GpsManager.Instance.UnlockAchievement(GPGSIds.achievement_first_50);
+            }
+            if (playerData.highScore >= AppData.achievementValue2)
+            {
+                GpsManager.Instance.UnlockAchievement(GPGSIds.achievement_century_100);
+            }
+            if (playerData.highScore >= AppData.achievementValue3)
+            {
+                GpsManager.Instance.UnlockAchievement(GPGSIds.achievement_next_250);
+            }
         }
     }
 
@@ -78,17 +89,17 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
 
     #region Get Set Player Data
 
-    public bool IsBallIdUnloced(string id)
+    public bool IsBallIdUnlocked(string id)
     {
         return playerData.unlockedBallIds.Contains(id);
     }
 
-    public bool IsFloorIdUnloced(string id)
+    public bool IsFloorIdUnlocked(string id)
     {
         return playerData.unlockedFloorIds.Contains(id);
     }
 
-    public bool IsBackgroundIdUnloced(string id)
+    public bool IsBackgroundIdUnlocked(string id)
     {
         return playerData.unlockedBackgroundIds.Contains(id);
     }
@@ -96,19 +107,19 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     public string CurrentSelectedBallId
     {
         get { return playerData.currentBallId; }
-        set { playerData.currentBallId = value; }
+        set { playerData.currentBallId = value; SaveGameUserDataOnCloud(); }
     }
 
     public string CurrentSelectedFloorId
     {
         get { return playerData.currentFloorId; }
-        set { playerData.currentFloorId = value; }
+        set { playerData.currentFloorId = value; SaveGameUserDataOnCloud(); }
     }
 
     public string CurrentSelectedBackgroundId
     {
         get { return playerData.currentBackgroundId; }
-        set { playerData.currentBackgroundId = value; }
+        set { playerData.currentBackgroundId = value; SaveGameUserDataOnCloud(); }
     }
 
     public bool IsSoundEnabled
@@ -177,6 +188,8 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     public void IncrementGems(int adder)
     {
         playerData.gems += adder;
+        UiPlayerDataHud.OnUpdateGemsValue?.Invoke();
+        // SaveGameUserDataOnCloud();
     }
 
     public void DecrementGems(int adder)
@@ -184,24 +197,41 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         if (playerData.gems >= adder)
         {
             playerData.gems -= adder;
+            UiPlayerDataHud.OnUpdateGemsValue?.Invoke();
+            SaveGameUserDataOnCloud();
         }
     }
 
     public void IncrementRetries()
     {
         playerData.retries++;
+        SaveGameUserDataOnCloud();
     }
 
-    public void SetHighScore(int highScore)
-    {
-        playerData.highScore = highScore;
-    }
-
-    public void AddUnlockedId(string ballId)
+    public void AddBallUnlockedId(string ballId)
     {
         if (!playerData.unlockedBallIds.Contains(ballId))
         {
             playerData.unlockedBallIds.Add(ballId);
+            SaveGameUserDataOnCloud();
+        }
+    }
+
+    public void AddFloorUnlockedId(string floorId)
+    {
+        if (!playerData.unlockedFloorIds.Contains(floorId))
+        {
+            playerData.unlockedFloorIds.Add(floorId);
+            SaveGameUserDataOnCloud();
+        }
+    }
+
+    public void AddBackgroundUnlockedId(string backgroundId)
+    {
+        if (!playerData.unlockedBackgroundIds.Contains(backgroundId))
+        {
+            playerData.unlockedBackgroundIds.Add(backgroundId);
+            SaveGameUserDataOnCloud();
         }
     }
     #endregion
@@ -211,8 +241,8 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         if (AppData.currentScore > playerData.highScore)
         {
             playerData.highScore = AppData.currentScore;
-            GpsManager.Instance.PostScoreToLeaderboard(playerData.highScore, GPGSIds.leaderboard_high_score__slide_away);
         }
+        GpsManager.Instance.PostScoreToLeaderboard(playerData.highScore, GPGSIds.leaderboard_high_score__slide_away);
         SaveGameUserDataOnCloud();
     }
 

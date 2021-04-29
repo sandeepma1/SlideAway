@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Light ballSpotLight;
     private float speed;
     private bool isGameStarted;
-    private float scoreHue;
+    // private float scoreHue;
     private bool isTurnedLeft;
     private bool isDead;
     private Vector3 dir;
@@ -123,10 +123,10 @@ public class PlayerController : MonoBehaviour
     private void UpdateScoreAndBallSpeed(int adder)
     {
         AppData.currentScore += adder;
-        OnUpdateScore?.Invoke();
+        UiPlayerDataHud.OnUpdateScoreValue?.Invoke();
         CheckAchievements();
         //Change color of floor
-        scoreHue = Clamp0360((float)AppData.currentScore) / 360.0f;
+        //scoreHue = Clamp0360((float)AppData.currentScore) / 360.0f;
         //floorMaterial.color = Color.HSVToRGB(scoreHue, AppData.floorSaturation, AppData.floorLightness);
         //Change speed of ball with speed
         if (speed <= AppData.maxSpeed)

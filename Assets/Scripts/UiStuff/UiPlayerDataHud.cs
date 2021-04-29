@@ -4,17 +4,19 @@ using System;
 
 public class UiPlayerDataHud : MonoBehaviour
 {
+    public static Action OnUpdateGemsValue;
+    public static Action OnUpdateScoreValue;
     [SerializeField] private GameObject scoreGo;
     [SerializeField] private TextMeshProUGUI currentScore;
     [SerializeField] private TextMeshProUGUI gemsText;
 
     private void Awake()
     {
+        OnUpdateGemsValue += UpdateGems;
+        OnUpdateScoreValue += UpdateCurrentScore;
         PlayerDataManager.OnPlayerDataLoaded += OnPlayerDataLoaded;
         UiStartCanvas.OnGameStart += OnGameStart;
         PlayerController.OnGameOver += OnGameOver;
-        PlayerController.OnUpdateScore += UpdateCurrentScore;
-        UiGemsSpawnCanvas.OnUpdateGems += UpdateGems;
         scoreGo.SetActive(false);
         UpdateGems();
     }
@@ -24,8 +26,6 @@ public class UiPlayerDataHud : MonoBehaviour
         PlayerDataManager.OnPlayerDataLoaded -= OnPlayerDataLoaded;
         UiStartCanvas.OnGameStart -= OnGameStart;
         PlayerController.OnGameOver -= OnGameOver;
-        PlayerController.OnUpdateScore -= UpdateCurrentScore;
-        UiGemsSpawnCanvas.OnUpdateGems -= UpdateGems;
     }
 
     private void OnPlayerDataLoaded()

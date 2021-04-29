@@ -6,7 +6,6 @@ public class UiGemsSpawnCanvas : MonoBehaviour
 {
     public static Action<Transform> OnSpawnGem;
     public static Action<Vector2> OnSpawnGem2d;
-    public static Action OnUpdateGems;
     [SerializeField] private RectTransform gemEndPosition;
     [SerializeField] private UiGemSpawn uiGemSpawnPrefab;
     private Canvas mainCanvas;
@@ -44,6 +43,6 @@ public class UiGemsSpawnCanvas : MonoBehaviour
     private IEnumerator UpdateGemAmountDelay()
     {
         yield return new WaitForSeconds(animSpeed);
-        OnUpdateGems?.Invoke();
+        UiPlayerDataHud.OnUpdateGemsValue?.Invoke();
     }
 }
