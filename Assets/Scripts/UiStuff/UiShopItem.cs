@@ -6,13 +6,13 @@ using TMPro;
 
 public class UiShopItem : MonoBehaviour
 {
-    public Action<ShopItem> OnButtonClicked;
+    public Action<string> OnButtonClicked;
     [SerializeField] private Button button;
     [SerializeField] private TextMeshProUGUI valueText;
     [SerializeField] private RectTransform rect;
     [SerializeField] private Image itemImage;
     [SerializeField] private GameObject valueGO;
-    public ShopItem shopItem;
+    private string itemId;
 
     private void OnDestroy()
     {
@@ -24,30 +24,51 @@ public class UiShopItem : MonoBehaviour
         return rect;
     }
 
-    public void InitButton(ShopItem shopItem, string spritePath = "")
+    public void InitButton(string itemId)
     {
+        this.itemId = itemId;
         button.onClick.AddListener(OnButtonClick);
-        this.shopItem = shopItem;
-        switch (shopItem.typeEnum)
+        itemImage.sprite = Resources.Load<Sprite>(AppData.allShopItemsIconPath + "/" + itemId);
+        UpdateItemStatus();
+        UpdateItemValue();
+    }
+
+    private void UpdateItemValue()
+    {
+        float value = ShopItems.allShopItems[itemId].value;
+        switch (ShopItems.allShopItems[itemId].currencyTypeEnum)
         {
-            case PurchaseType.Gems:
-                valueText.text = this.shopItem.value + " " + AppData.gemIcon;
+            case CurrencyType.Gems:
+                valueText.text = value + " " + AppData.gemIcon;
                 break;
-            case PurchaseType.Ads:
-                valueText.text = this.shopItem.value + " " + AppData.adIcon;
+            case CurrencyType.Ads:
+                UpdateAdItemValue();
                 break;
-            case PurchaseType.Paid:
-                valueText.text = "$ " + this.shopItem.value;
+            case CurrencyType.Paid:
+                valueText.text = "$ " + value;
                 break;
             default:
                 break;
         }
-        if (!String.IsNullOrEmpty(spritePath))
+    }
+
+    public void UpdateAdItemValue()
+    {
+        if (PlayerDataManager.Instance.playerData.adsWatched.ContainsKey(itemId))
         {
-            itemImage.sprite = Resources.Load<Sprite>(spritePath);
+            valueText.text = PlayerDataManager.Instance.playerData.adsWatched[itemId] + " " + AppData.adIcon;
         }
-        valueGO.SetActive(!this.shopItem.isUnlocked);
-        if (this.shopItem.isUnlocked)
+        else
+        {
+            valueText.text = ShopItems.allShopItems[itemId].value + " " + AppData.adIcon;
+        }
+    }
+
+    public void UpdateItemStatus()
+    {
+        bool isItemUnlocked = PlayerDataManager.Instance.IsItemUnlocked(itemId);
+        valueGO.SetActive(!isItemUnlocked);
+        if (isItemUnlocked)
         {
             itemImage.color = Color.white;
         }
@@ -57,18 +78,8 @@ public class UiShopItem : MonoBehaviour
         }
     }
 
-    public void DecreaseAdValueText()
-    {
-        shopItem.value--;
-        valueText.text = this.shopItem.value + " " + AppData.adIcon;
-        if (shopItem.value <= 0)
-        {
-            shopItem.isUnlocked = true;
-        }
-    }
-
     private void OnButtonClick()
     {
-        OnButtonClicked?.Invoke(shopItem);
+        OnButtonClicked?.Invoke(itemId);
     }
 }

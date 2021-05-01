@@ -26,12 +26,9 @@
     public const string localSaveKey = "localSave";
     public const string oldSaveKey = "BestScore";
 
-    public const string shopItemsDbJsonPath = "DB/ShopDB";
-    public const string allBallMatPath = "BallMaterials";
-    public const string allBallIconsPath = "BallIcons";
-    public const string allFloorMatPath = "FloorMaterials";
-    public const string allFloorIconsPath = "FloorIcons";
-    public const string allBackgroundIconsPath = "BackgroundIcons";// not mat for background
+    public const string shopItemsDbJsonPath = "ShopDatabase/ShopDatabase";
+    public const string allShopItemsIconPath = "AllItemIcons";
+    public const string allShopItemsMatPath = "AllItemMaterials";
 
     public const string gemIcon = "<sprite=0>";
     public const string adIcon = "<sprite=1>";

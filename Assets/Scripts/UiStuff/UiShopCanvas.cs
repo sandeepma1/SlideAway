@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
+using TMPro;
 
 public class UiShopCanvas : MonoBehaviour
 {
@@ -11,37 +12,103 @@ public class UiShopCanvas : MonoBehaviour
     public static Action<string> OnBallChanged;
     public static Action<string> OnFloorChanged;
     public static Action<string> OnBackgroundChanged;
+    [SerializeField] private Button watchAdForFreeGemsButton;
+    [SerializeField] private Button unlockButton;
+    [SerializeField] private TextMeshProUGUI unlockButtonText;
     [SerializeField] private Button closeButton;
     [SerializeField] private RectTransform mainPanel;
     [SerializeField] private Color selectTabColor;
     [SerializeField] private Color deselectTabColor;
+    [SerializeField] private UiShopItem uiShopItemPrefab;
+    [SerializeField] private ScrollRect mainScrollRect;
     [SerializeField] private UiTabButton[] uiTabButtons;
-    [SerializeField] private UiSingleShopPanel[] uiSingleShopPanels;
+    [SerializeField] private RectTransform[] contents;
+    [SerializeField] private RectTransform[] itemSelectors;
+    private Dictionary<string, UiShopItem> uiShopItems = new Dictionary<string, UiShopItem>();
     private float panelHeight;
     private int lastClickedTabId;
     private bool isPlayerDataLoaded = false;
+    private bool isShopItemsCreated = false;
+    private string currentItemId;
+    private string currentUnlockedItemId;
+    private string currentRequestedAdItemId;
 
-
+    #region Unity functions
     private void Awake()
     {
+        GameAdManager.OnAdWatchRewardPlayer += OnAdWatchRewardPlayer;
         PlayerDataManager.OnPlayerDataLoaded += OnPlayerDataLoaded;
         UiStartCanvas.OnShopButtonPressed += OnShopButtonPressed;
         closeButton.onClick.AddListener(HideShopMenu);
+        unlockButton.onClick.AddListener(UnlockButtonPressed);
+        watchAdForFreeGemsButton.onClick.AddListener(WatchAdForFreeGemsButtonPressed);
     }
 
     private void Start()
     {
         mainPanel.gameObject.SetActive(false);
-        InitTabs();
         StartCoroutine(GetMainPanelHeight());
     }
 
     private void OnDestroy()
     {
+        GameAdManager.OnAdWatchRewardPlayer -= OnAdWatchRewardPlayer;
         PlayerDataManager.OnPlayerDataLoaded -= OnPlayerDataLoaded;
         UiStartCanvas.OnShopButtonPressed -= OnShopButtonPressed;
         closeButton.onClick.RemoveListener(HideShopMenu);
+        unlockButton.onClick.RemoveListener(UnlockButtonPressed);
+        watchAdForFreeGemsButton.onClick.RemoveListener(WatchAdForFreeGemsButtonPressed);
     }
+
+    #endregion
+
+
+    #region Load and Create Shop Items
+    private void OnPlayerDataLoaded()
+    {
+        isPlayerDataLoaded = true;
+        CreateShopItems();
+        InitTabs();
+    }
+
+    private void CreateShopItems()
+    {
+        if (isShopItemsCreated)
+        {
+            return;
+        }
+        isShopItemsCreated = true;
+        foreach (KeyValuePair<string, ShopItem> item in ShopItems.allShopItems)
+        {
+            UiShopItem uiShopItem = Instantiate(uiShopItemPrefab, this.transform);
+            uiShopItem.InitButton(item.Value.id);
+            uiShopItem.OnButtonClicked += OnItemButtonClicked;
+            switch (item.Value.itemTypeEnum)
+            {
+                case ShopItemType.Ball:
+                    uiShopItem.transform.SetParent(contents[0]);
+                    break;
+                case ShopItemType.Floor:
+                    uiShopItem.transform.SetParent(contents[1]);
+                    break;
+                case ShopItemType.Background:
+                    uiShopItem.transform.SetParent(contents[2]);
+                    break;
+                default:
+                    break;
+            }
+            uiShopItems.Add(item.Value.id, uiShopItem);
+        }
+        for (int i = 0; i < itemSelectors.Length; i++)
+        {
+            itemSelectors[i].sizeDelta = contents[i].GetComponent<GridLayoutGroup>().FitGridCell2d();
+            SetItemSelector(i, PlayerDataManager.Instance.playerData.currentSelectedItemIds[i]);
+            contents[i].gameObject.SetActive(false);
+        }
+        contents[0].gameObject.SetActive(true);
+        LoadDefaultSelectedItems();
+    }
+    #endregion
 
 
     #region Show/Hide main Store menu
@@ -74,10 +141,20 @@ public class UiShopCanvas : MonoBehaviour
 
     private void HideShopMenu()
     {
+        LoadDefaultSelectedItems();
         OnIsShopMenuVisible?.Invoke(false);
         mainPanel.DOAnchorPosY(-panelHeight, AppData.shopAnimSpeed)
             .OnComplete(() => mainPanel.gameObject.SetActive(false));
         UiStartCanvas.OnToggleUiStartPanel?.Invoke(true);
+    }
+
+    private void LoadDefaultSelectedItems()
+    {
+        for (int i = 0; i < itemSelectors.Length; i++)
+        {
+            string itemId = PlayerDataManager.Instance.playerData.currentSelectedItemIds[i];
+            SetItemSelector(i, itemId);
+        }
     }
     #endregion
 
@@ -98,55 +175,153 @@ public class UiShopCanvas : MonoBehaviour
         {
             return;
         }
-        uiSingleShopPanels[lastClickedTabId].gameObject.SetActive(false);
+        SetItemSelector(tabId, PlayerDataManager.Instance.playerData.currentSelectedItemIds[tabId]);
+        contents[lastClickedTabId].gameObject.SetActive(false);
         uiTabButtons[lastClickedTabId].ToggleButtonPressed(deselectTabColor, false);
         uiTabButtons[tabId].ToggleButtonPressed(selectTabColor, true);
-        uiSingleShopPanels[tabId].gameObject.SetActive(true);
+        contents[tabId].gameObject.SetActive(true);
+        mainScrollRect.content = contents[tabId];
         lastClickedTabId = tabId;
     }
     #endregion
 
-    private void OnPlayerDataLoaded()
-    {
-        isPlayerDataLoaded = true;
-        CreateShopPanel();
-    }
 
-    private void CreateShopPanel()
+    #region Shop Buttons
+    private void OnItemButtonClicked(string itemId)
     {
-       // print("CreateShopPanel");
-        for (int i = 0; i < uiSingleShopPanels.Length; i++)
+        currentItemId = itemId;
+        if (PlayerDataManager.Instance.playerData.unlockedItemIds.Contains(currentItemId))
         {
-            uiSingleShopPanels[i].OnShopItemClicked += OnShopItemClicked;
+            currentUnlockedItemId = currentItemId;
+            PlayerDataManager.Instance.playerData.currentSelectedItemIds[lastClickedTabId] = currentUnlockedItemId;
         }
-        uiSingleShopPanels[0].CreateShopItems(PlayerDataManager.Instance.allShopItems.BallItems, ShopItemType.Ball);
-        uiSingleShopPanels[1].CreateShopItems(PlayerDataManager.Instance.allShopItems.FloorItems, ShopItemType.Floor);
-        uiSingleShopPanels[2].CreateShopItems(PlayerDataManager.Instance.allShopItems.BackgroundItems, ShopItemType.Background);
-        uiSingleShopPanels[0].gameObject.SetActive(true);
+        SetItemSelector(lastClickedTabId, currentItemId);
     }
 
-    private void OnShopItemClicked(ShopItemType shopItemType, string id)
+    private void UnlockButtonPressed()
     {
-        switch (shopItemType)
+        ShopItem shopItem = ShopItems.allShopItems[currentItemId];
+        switch (shopItem.currencyTypeEnum)
         {
-            case ShopItemType.Ball:
-                OnBallChanged?.Invoke(id);
+            case CurrencyType.Gems:
+                if (PlayerDataManager.Instance.GetGems() >= (int)shopItem.value)
+                {
+                    currentUnlockedItemId = currentItemId;
+                    PlayerDataManager.Instance.DecrementGems((int)shopItem.value);
+                    PlayerDataManager.Instance.playerData.currentSelectedItemIds[lastClickedTabId] = currentItemId;
+                    if (PlayerDataManager.Instance.playerData.unlockedItemIds.Contains(currentItemId))
+                    {
+                        Debug.LogError("Something is wrong here");
+                    }
+                    else
+                    {
+                        PlayerDataManager.Instance.playerData.unlockedItemIds.Add(currentItemId);
+                    }
+                    OnItemButtonClicked(currentItemId);
+                    uiShopItems[currentItemId].UpdateItemStatus();
+                }
+                else
+                {
+                    Debug.LogError("Gems are less, by more");
+                }
                 break;
-            case ShopItemType.Floor:
-                OnFloorChanged?.Invoke(id);
+            case CurrencyType.Ads:
+                currentRequestedAdItemId = currentItemId;
+                GameAdManager.OnWatchAd?.Invoke(AdRewardType.SingleReward, currentRequestedAdItemId);
                 break;
-            case ShopItemType.Background:
-                OnBackgroundChanged?.Invoke(id);
+            case CurrencyType.Paid:
                 break;
             default:
                 break;
         }
     }
-}
 
-public enum ShopItemType
-{
-    Ball,
-    Floor,
-    Background
+    private void OnAdWatchRewardPlayer(string itemId)
+    {
+        if (ShopItems.allShopItems[itemId].currencyTypeEnum != CurrencyType.Ads)
+        {
+            return;
+        }
+        if (currentRequestedAdItemId == itemId)
+        {
+            currentRequestedAdItemId = "";
+            if (PlayerDataManager.Instance.playerData.adsWatched.ContainsKey(itemId))// Already watched one or more ads
+            {
+                PlayerDataManager.Instance.playerData.adsWatched[itemId]--;
+                uiShopItems[itemId].UpdateAdItemValue();
+                if (PlayerDataManager.Instance.playerData.adsWatched[itemId] <= 0) // Item is unlocked, watched all ads
+                {
+                    PlayerDataManager.Instance.AddItemUnlockedId(itemId);
+                    PlayerDataManager.Instance.playerData.adsWatched.Remove(itemId);
+                    uiShopItems[itemId].UpdateItemStatus();
+                    OnItemButtonClicked(currentItemId);
+                }
+            }
+            else //First time ad watched
+            {
+                int value = (int)ShopItems.allShopItems[itemId].value - 1;
+                PlayerDataManager.Instance.playerData.adsWatched.Add(itemId, value);
+                uiShopItems[itemId].UpdateAdItemValue();
+            }
+        }
+    }
+
+    private void WatchAdForFreeGemsButtonPressed()
+    {
+        GameAdManager.OnWatchAd?.Invoke(AdRewardType.FreeGems, "");
+    }
+    #endregion
+
+    private void SetItemSelector(int selectorId, string itemId)
+    {
+        itemSelectors[selectorId].SetParent(uiShopItems[itemId].transform);
+        itemSelectors[selectorId].DOAnchorPos(Vector2.zero, 0.15f);
+        itemSelectors[selectorId].SetAsFirstSibling();
+        ChangeMaterial(itemId);
+        SetUnlockButtonText(itemId);
+    }
+
+    private void SetUnlockButtonText(string itemId)
+    {
+        bool isItemUnlocked = PlayerDataManager.Instance.playerData.unlockedItemIds.Contains(itemId);
+        unlockButton.gameObject.SetActive(!isItemUnlocked);
+        if (isItemUnlocked)
+        {
+            return;
+        }
+        float value = ShopItems.allShopItems[itemId].value;
+        switch (ShopItems.allShopItems[itemId].currencyTypeEnum)
+        {
+            case CurrencyType.Gems:
+                unlockButtonText.text = "Unlock " + value + AppData.gemIcon;
+                break;
+            case CurrencyType.Ads:
+                unlockButtonText.text = "Watch Ads " + AppData.adIcon;
+                break;
+            case CurrencyType.Paid:
+                unlockButtonText.text = "Unlock $" + value;
+                break;
+            default:
+                unlockButtonText.text = value.ToString();
+                break;
+        }
+    }
+
+    private void ChangeMaterial(string itemId)
+    {
+        switch (ShopItems.allShopItems[itemId].itemTypeEnum)
+        {
+            case ShopItemType.Ball:
+                OnBallChanged?.Invoke(itemId);
+                break;
+            case ShopItemType.Floor:
+                OnFloorChanged?.Invoke(itemId);
+                break;
+            case ShopItemType.Background:
+                OnBackgroundChanged?.Invoke(itemId);
+                break;
+            default:
+                break;
+        }
+    }
 }

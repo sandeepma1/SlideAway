@@ -165,7 +165,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnBallMaterialChanged(string id)
     {
-        ballMeshRenderer.material = Resources.Load<Material>(AppData.allBallMatPath + "/" + id);
+        ballMeshRenderer.material = Resources.Load<Material>(AppData.allShopItemsMatPath + "/" + id);
     }
 
     private void OnIsShopMenuVisible(bool isShopVisible)

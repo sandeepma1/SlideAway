@@ -17,6 +17,6 @@ public class UiCameraBackgroundCanvas : MonoBehaviour
 
     private void OnBackgroundChanged(string backgroundId)
     {
-        mainBgImage.sprite = Resources.Load<Sprite>(AppData.allBackgroundIconsPath + "/" + backgroundId);
+        mainBgImage.sprite = Resources.Load<Sprite>(AppData.allShopItemsIconPath + "/" + backgroundId);
     }
 }

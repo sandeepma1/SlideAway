@@ -15,16 +15,13 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     [SerializeField] private TimeSpan rewardTimeSpan;
     public bool isPlayerDataLoaded = false;
     public bool isCloudDataLoaded = false;
-    private bool isShopItemsLoaded = false;
-    public ShopItems allShopItems;
-
 
     protected override void Awake()
     {
         base.Awake();
         PlayerController.OnGameOver += OnGameOver;
         GpsManager.OnCloudDataLoaded += OnCloudDataLoaded;
-        LoadDatabse();
+        ShopItems.LoadShopDatabse();
     }
 
     private void OnDestroy()
@@ -33,39 +30,19 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         GpsManager.OnCloudDataLoaded -= OnCloudDataLoaded;
     }
 
-    public void LoadDatabse()
+    internal bool IsItemUnlocked(string itemId)
     {
-        if (isShopItemsLoaded)
-        {
-            return;
-        }
-        TextAsset mytxtData = (TextAsset)Resources.Load(AppData.shopItemsDbJsonPath);
-        allShopItems = JsonUtility.FromJson<ShopItems>(mytxtData.text);
-        for (int i = 0; i < allShopItems.BallItems.Count; i++)
-        {
-            Enum.TryParse(allShopItems.BallItems[i].type, out allShopItems.BallItems[i].typeEnum);
-            allShopItems.BallItems[i].isUnlocked = IsBallIdUnlocked(allShopItems.BallItems[i].id);
-        }
-        for (int i = 0; i < allShopItems.FloorItems.Count; i++)
-        {
-            Enum.TryParse(allShopItems.FloorItems[i].type, out allShopItems.FloorItems[i].typeEnum);
-            allShopItems.FloorItems[i].isUnlocked = IsFloorIdUnlocked(allShopItems.FloorItems[i].id);
-        }
-        for (int i = 0; i < allShopItems.BackgroundItems.Count; i++)
-        {
-            Enum.TryParse(allShopItems.BackgroundItems[i].type, out allShopItems.BackgroundItems[i].typeEnum);
-            allShopItems.BackgroundItems[i].isUnlocked = IsBackgroundIdUnlocked(allShopItems.BackgroundItems[i].id);
-        }
-        isShopItemsLoaded = true;
+        return playerData.unlockedItemIds.Contains(itemId);
     }
 
+
     #region Local Save/Load Sytem <---- Replace with a encrypt save load
-    public void SaveLocalData(string save)
+    private void SaveLocalData(string save)
     {
         PlayerPrefs.SetString(AppData.localSaveKey, save);
     }
 
-    public string LoadLocalData()
+    private string LoadLocalData()
     {
         return PlayerPrefs.GetString(AppData.localSaveKey);
     }
@@ -75,7 +52,6 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     #region Load data at start *** Very Imp 
     private void OnCloudDataLoaded(bool isCloudDataLoaded, string cloudData)
     {
-        //print("OnCloudDataLoaded");
         this.isCloudDataLoaded = isCloudDataLoaded;
         Hud.SetHudText?.Invoke("Started loading data " + cloudData);
         if (PlayerPrefs.HasKey(AppData.oldSaveKey)) //Has old saves, add it
@@ -117,6 +93,8 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
     {
         //ProcessLatestSave(isCloudSave, saveData);
         playerData = JsonUtility.FromJson<PlayerData>(saveData);
+        //Created dictonary from a list of AdsWatchedItems for ease
+        playerData.ListToDictonary();
         lastPlayedDateTime = JsonUtility.FromJson<JsonDateTime>(playerData.lastPlayedDateTime);
         rewardsDateTime = JsonUtility.FromJson<JsonDateTime>(playerData.nextRewardDateTime);
     }
@@ -128,36 +106,6 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         PlayerPrefs.DeleteKey(AppData.oldSaveKey);
         rewardsDateTime = DateTime.UtcNow;
         Hud.SetHudText?.Invoke("Created new save");
-
-        if (allShopItems == null)
-        {
-            LoadDatabse();
-        }
-        playerData.adsWatchedBall = new List<AdsWatched>();
-        for (int i = 0; i < allShopItems.BallItems.Count; i++)
-        {
-            if (allShopItems.BallItems[i].typeEnum == PurchaseType.Ads)
-            {
-                playerData.adsWatchedBall.Add(new AdsWatched(allShopItems.BallItems[i].id, (int)allShopItems.BallItems[i].value));
-            }
-        }
-        playerData.adsWatchedFloor = new List<AdsWatched>();
-        for (int i = 0; i < allShopItems.FloorItems.Count; i++)
-        {
-            if (allShopItems.FloorItems[i].typeEnum == PurchaseType.Ads)
-            {
-                playerData.adsWatchedFloor.Add(new AdsWatched(allShopItems.FloorItems[i].id, (int)allShopItems.FloorItems[i].value));
-            }
-        }
-        playerData.adsWatchedBackground = new List<AdsWatched>();
-        for (int i = 0; i < allShopItems.BackgroundItems.Count; i++)
-        {
-            if (allShopItems.BackgroundItems[i].typeEnum == PurchaseType.Ads)
-            {
-                playerData.adsWatchedBackground.Add(new AdsWatched(allShopItems.BackgroundItems[i].id, (int)allShopItems.BackgroundItems[i].value));
-            }
-        }
-
         if (playerData.highScore >= AppData.achievementValue1)
         {
             GpsManager.Instance.UnlockAchievement(GPGSIds.achievement_first_50);
@@ -211,52 +159,19 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
 
 
     #region Get Set Player Data
-    public bool IsBallIdUnlocked(string id)
-    {
-        return playerData.unlockedBallIds.Contains(id);
-    }
-
-    public bool IsFloorIdUnlocked(string id)
-    {
-        return playerData.unlockedFloorIds.Contains(id);
-    }
-
-    public bool IsBackgroundIdUnlocked(string id)
-    {
-        return playerData.unlockedBackgroundIds.Contains(id);
-    }
-
-    public string CurrentSelectedBallId
-    {
-        get { return playerData.currentBallId; }
-        set { playerData.currentBallId = value; SaveGameUserData(); }
-    }
-
-    public string CurrentSelectedFloorId
-    {
-        get { return playerData.currentFloorId; }
-        set { playerData.currentFloorId = value; SaveGameUserData(); }
-    }
-
-    public string CurrentSelectedBackgroundId
-    {
-        get { return playerData.currentBackgroundId; }
-        set { playerData.currentBackgroundId = value; SaveGameUserData(); }
-    }
-
-    public bool IsSoundEnabled
+    internal bool IsSoundEnabled
     {
         get { return playerData.isSoundEnabled; }
         set { playerData.isSoundEnabled = value; }
     }
 
-    public bool IsVibrateEnabled
+    internal bool IsVibrateEnabled
     {
         get { return playerData.isVibrateEnabled; }
         set { playerData.isVibrateEnabled = value; }
     }
 
-    public DateTime RewardDateTime
+    internal DateTime RewardDateTime
     {
         get { return rewardsDateTime; }
         set
@@ -266,12 +181,12 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         }
     }
 
-    public bool IsPlayerDataNull()
+    internal bool IsPlayerDataNull()
     {
         return playerData == null;
     }
 
-    public int GetHighScore()
+    internal int GetHighScore()
     {
         if (playerData != null)
         {
@@ -283,7 +198,7 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         }
     }
 
-    public int GetRetries()
+    internal int GetRetries()
     {
         if (playerData != null)
         {
@@ -295,7 +210,7 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         }
     }
 
-    public int GetGems()
+    internal int GetGems()
     {
         if (playerData != null)
         {
@@ -307,14 +222,14 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         }
     }
 
-    public void IncrementGems(int adder)
+    internal void IncrementGems(int adder)
     {
         playerData.gems += adder;
         UiPlayerDataHud.OnUpdateGemsValue?.Invoke();
         // SaveGameUserDataOnCloud();
     }
 
-    public void DecrementGems(int adder)
+    internal void DecrementGems(int adder)
     {
         if (playerData.gems >= adder)
         {
@@ -324,57 +239,19 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         }
     }
 
-    public void IncrementRetries()
+    internal void IncrementRetries()
     {
         playerData.retries++;
         SaveGameUserData();
     }
 
-    public void AddBallUnlockedId(string ballId)
+    internal void AddItemUnlockedId(string itemId)
     {
-        if (!playerData.unlockedBallIds.Contains(ballId))
+        if (!playerData.unlockedItemIds.Contains(itemId))
         {
-            playerData.unlockedBallIds.Add(ballId);
+            playerData.unlockedItemIds.Add(itemId);
             SaveGameUserData();
         }
-    }
-
-    public void AddFloorUnlockedId(string floorId)
-    {
-        if (!playerData.unlockedFloorIds.Contains(floorId))
-        {
-            playerData.unlockedFloorIds.Add(floorId);
-            SaveGameUserData();
-        }
-    }
-
-    public void AddBackgroundUnlockedId(string backgroundId)
-    {
-        if (!playerData.unlockedBackgroundIds.Contains(backgroundId))
-        {
-            playerData.unlockedBackgroundIds.Add(backgroundId);
-            SaveGameUserData();
-        }
-    }
-
-    public void AdWatchedRewardBall(string ballId)
-    {
-        for (int i = 0; i < playerData.adsWatchedBall.Count; i++)
-        {
-            if (playerData.adsWatchedBall[i].id == ballId)
-            {
-                playerData.adsWatchedBall[i].count--;
-                if (playerData.adsWatchedBall[i].count <= 0)
-                {
-                    AddBallUnlockedId(playerData.adsWatchedBall[i].id);
-                    //be aware
-                    playerData.adsWatchedBall.Remove(playerData.adsWatchedBall[i]);
-                    break;
-                }
-                break;
-            }
-        }
-        SaveGameUserData();
     }
     #endregion
 
@@ -399,13 +276,14 @@ public class PlayerDataManager : Singleton<PlayerDataManager>
         if (pause) { SaveGameUserData(); }
     }
 
-    public void SaveGameUserData()
+    internal void SaveGameUserData()
     {
         if (!isPlayerDataLoaded)
         {
             return;
         }
         playerData.lastPlayedDateTime = JsonUtility.ToJson((JsonDateTime)DateTime.UtcNow);
+        playerData.DictonaryToList();
         string save = JsonUtility.ToJson(playerData);
         Hud.SetHudText?.Invoke("saving " + save);
         SaveLocalData(save);
@@ -420,15 +298,10 @@ public class PlayerData
     public int gems;
     public int highScore;
     public int retries;
-    public List<string> unlockedBallIds;
-    public List<AdsWatched> adsWatchedBall;
-    public string currentBallId;
-    public List<string> unlockedFloorIds;
-    public List<AdsWatched> adsWatchedFloor;
-    public string currentFloorId;
-    public List<string> unlockedBackgroundIds;
-    public List<AdsWatched> adsWatchedBackground;
-    public string currentBackgroundId;
+    public List<string> unlockedItemIds;
+    public List<AdsWatched> adsWatchedItemIds;
+    public Dictionary<string, int> adsWatched = new Dictionary<string, int>();
+    public string[] currentSelectedItemIds;
     public string nextRewardDateTime;
     public bool isSoundEnabled;
     public bool isVibrateEnabled;
@@ -439,22 +312,35 @@ public class PlayerData
         gems = 100;
         highScore = 0;
         retries = 0;
-
-        unlockedBallIds = new List<string>();
-        unlockedBallIds.Add("gem0");
-        currentBallId = "gem0";
-
-        unlockedFloorIds = new List<string>();
-        unlockedFloorIds.Add("gem0");
-        currentFloorId = "gem0";
-
-        unlockedBackgroundIds = new List<string>();
-        unlockedBackgroundIds.Add("gem0");
-        currentBackgroundId = "gem0";
+        unlockedItemIds = new List<string>();
+        unlockedItemIds.Add("0BallGems");
+        unlockedItemIds.Add("0FloorGems");
+        unlockedItemIds.Add("0BackgroundGems");
+        currentSelectedItemIds = new string[3];
+        currentSelectedItemIds[0] = "0BallGems";
+        currentSelectedItemIds[1] = "0FloorGems";
+        currentSelectedItemIds[2] = "0BackgroundGems";
         nextRewardDateTime = JsonUtility.ToJson((JsonDateTime)DateTime.UtcNow);
         lastPlayedDateTime = JsonUtility.ToJson((JsonDateTime)DateTime.UtcNow);
         isSoundEnabled = true;
         isVibrateEnabled = true;
+    }
+
+    public void ListToDictonary()
+    {
+        for (int i = 0; i < adsWatchedItemIds.Count; i++)
+        {
+            adsWatched.Add(adsWatchedItemIds[i].id, adsWatchedItemIds[i].count);
+        }
+    }
+
+    public void DictonaryToList()
+    {
+        adsWatchedItemIds = new List<AdsWatched>();
+        foreach (KeyValuePair<string, int> item in adsWatched)
+        {
+            adsWatchedItemIds.Add(new AdsWatched(item.Key, item.Value));
+        }
     }
 }
 
@@ -498,27 +384,4 @@ public class JsonDateTime
     //print(json);
     //DateTime timeFromJson = JsonUtility.FromJson<JsonDateTime>(json);
     //print(timeFromJson);
-}
-
-[System.Serializable]
-public class ShopItems
-{
-    public List<ShopItem> BallItems;
-    public List<ShopItem> FloorItems;
-    public List<ShopItem> BackgroundItems;
-}
-[System.Serializable]
-public class ShopItem
-{
-    public string id;
-    public string type;
-    public float value;
-    public PurchaseType typeEnum;
-    public bool isUnlocked;
-}
-public enum PurchaseType
-{
-    Gems,
-    Ads,
-    Paid
 }

@@ -55,7 +55,7 @@ public class TileManager : MonoBehaviour
 
     private void OnFloorChanged(string floorId)
     {
-        Material mat = Resources.Load<Material>(AppData.allFloorMatPath + "/" + floorId);
+        Material mat = Resources.Load<Material>(AppData.allShopItemsMatPath + "/" + floorId);
         if (mat == null)
         {
             Debug.LogError("Null Material!!");
