@@ -11,6 +11,7 @@ public class UiSettingsCanvas : MonoBehaviour
     public static Action<bool> isVibrateEnabled;
     [SerializeField] private Button closeButton;
     [SerializeField] private Button closeButtonBG;
+    [SerializeField] private Button gpsLoginButton;
     [SerializeField] private RectTransform mainPanelRect;
     [SerializeField] private Toggle soundToggle;
     [SerializeField] private Toggle vibrateToggle;
@@ -19,10 +20,12 @@ public class UiSettingsCanvas : MonoBehaviour
 
     private void Awake()
     {
+        GpsManager.OnCloudDataLoaded += OnCloudDataLoaded;
         PlayerDataManager.OnPlayerDataLoaded += OnPlayerDataLoaded;
         UiStartCanvas.OnSettingsButtonPressed += OnSettingsButtonPressed;
         closeButton.onClick.AddListener(OnCloseButtonClicked);
         closeButtonBG.onClick.AddListener(OnCloseButtonClicked);
+        gpsLoginButton.onClick.AddListener(OnGpsLoginButton);
         soundToggle.onValueChanged.AddListener(OnSoundToggle);
         vibrateToggle.onValueChanged.AddListener(OnVibrateToggle);
         StartCoroutine(GetRectHeight());
@@ -38,18 +41,33 @@ public class UiSettingsCanvas : MonoBehaviour
 
     private void OnDestroy()
     {
+        GpsManager.OnCloudDataLoaded -= OnCloudDataLoaded;
         PlayerDataManager.OnPlayerDataLoaded -= OnPlayerDataLoaded;
         UiStartCanvas.OnSettingsButtonPressed -= OnSettingsButtonPressed;
         closeButton.onClick.RemoveListener(OnCloseButtonClicked);
         closeButtonBG.onClick.RemoveListener(OnCloseButtonClicked);
+        gpsLoginButton.onClick.RemoveListener(OnGpsLoginButton);
         soundToggle.onValueChanged.RemoveListener(OnSoundToggle);
         vibrateToggle.onValueChanged.RemoveListener(OnVibrateToggle);
     }
+
+    #region GPS login
+    private void OnCloudDataLoaded(bool isCloudSaveLoaded, string arg2)
+    {
+        gpsLoginButton.gameObject.SetActive(!isCloudSaveLoaded);
+    }
+
+    private void OnGpsLoginButton()
+    {
+        GpsManager.Instance.GpsSignIn();
+    }
+    #endregion
 
     private void OnPlayerDataLoaded()
     {
         soundToggle.isOn = !PlayerDataManager.Instance.IsSoundEnabled;
         vibrateToggle.isOn = !PlayerDataManager.Instance.IsVibrateEnabled;
+        gpsLoginButton.gameObject.SetActive(!PlayerDataManager.Instance.isCloudDataLoaded);
     }
 
     private void OnSoundToggle(bool isOn)

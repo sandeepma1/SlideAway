@@ -19,8 +19,8 @@ public class UiShopCanvas : MonoBehaviour
     [SerializeField] private UiSingleShopPanel[] uiSingleShopPanels;
     private float panelHeight;
     private int lastClickedTabId;
-    private ShopItems allShopItems;
     private bool isPlayerDataLoaded = false;
+
 
     private void Awake()
     {
@@ -31,6 +31,7 @@ public class UiShopCanvas : MonoBehaviour
 
     private void Start()
     {
+        mainPanel.gameObject.SetActive(false);
         InitTabs();
         StartCoroutine(GetMainPanelHeight());
     }
@@ -52,9 +53,6 @@ public class UiShopCanvas : MonoBehaviour
         {
             OnPlayerDataLoaded();
         }
-#if UNITY_EDITOR
-        OnPlayerDataLoaded();
-#endif
     }
 
     private void OnShopButtonPressed()
@@ -116,30 +114,14 @@ public class UiShopCanvas : MonoBehaviour
 
     private void CreateShopPanel()
     {
-        TextAsset mytxtData = (TextAsset)Resources.Load(AppData.shopItemsDbJsonPath);
-        allShopItems = JsonUtility.FromJson<ShopItems>(mytxtData.text);
-        for (int i = 0; i < allShopItems.BallItems.Count; i++)
-        {
-            Enum.TryParse(allShopItems.BallItems[i].type, out allShopItems.BallItems[i].typeEnum);
-            allShopItems.BallItems[i].isUnlocked = PlayerDataManager.Instance.IsBallIdUnlocked(allShopItems.BallItems[i].id);
-        }
-        for (int i = 0; i < allShopItems.FloorItems.Count; i++)
-        {
-            Enum.TryParse(allShopItems.FloorItems[i].type, out allShopItems.FloorItems[i].typeEnum);
-            allShopItems.FloorItems[i].isUnlocked = PlayerDataManager.Instance.IsFloorIdUnlocked(allShopItems.FloorItems[i].id);
-        }
-        for (int i = 0; i < allShopItems.BackgroundItems.Count; i++)
-        {
-            Enum.TryParse(allShopItems.BackgroundItems[i].type, out allShopItems.BackgroundItems[i].typeEnum);
-            allShopItems.BackgroundItems[i].isUnlocked = PlayerDataManager.Instance.IsBackgroundIdUnlocked(allShopItems.BackgroundItems[i].id);
-        }
+       // print("CreateShopPanel");
         for (int i = 0; i < uiSingleShopPanels.Length; i++)
         {
             uiSingleShopPanels[i].OnShopItemClicked += OnShopItemClicked;
         }
-        uiSingleShopPanels[0].CreateShopItems(allShopItems.BallItems, ShopItemType.Ball);
-        uiSingleShopPanels[1].CreateShopItems(allShopItems.FloorItems, ShopItemType.Floor);
-        uiSingleShopPanels[2].CreateShopItems(allShopItems.BackgroundItems, ShopItemType.Background);
+        uiSingleShopPanels[0].CreateShopItems(PlayerDataManager.Instance.allShopItems.BallItems, ShopItemType.Ball);
+        uiSingleShopPanels[1].CreateShopItems(PlayerDataManager.Instance.allShopItems.FloorItems, ShopItemType.Floor);
+        uiSingleShopPanels[2].CreateShopItems(PlayerDataManager.Instance.allShopItems.BackgroundItems, ShopItemType.Background);
         uiSingleShopPanels[0].gameObject.SetActive(true);
     }
 
@@ -160,31 +142,6 @@ public class UiShopCanvas : MonoBehaviour
                 break;
         }
     }
-}
-
-
-[System.Serializable]
-public class ShopItems
-{
-    public List<ShopItem> BallItems;
-    public List<ShopItem> FloorItems;
-    public List<ShopItem> BackgroundItems;
-}
-
-[System.Serializable]
-public class ShopItem
-{
-    public string id;
-    public string type;
-    public float value;
-    public PurchaseType typeEnum;
-    public bool isUnlocked;
-}
-public enum PurchaseType
-{
-    Gems,
-    Ads,
-    Paid
 }
 
 public enum ShopItemType

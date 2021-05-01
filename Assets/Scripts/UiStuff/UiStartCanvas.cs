@@ -48,6 +48,7 @@ public class UiStartCanvas : MonoBehaviour
 
     private void Awake()
     {
+        GpsManager.OnCloudDataLoaded += OnCloudDataLoaded;
         OnToggleUiStartPanel += ToggleUiStartPanel;
         PlayerDataManager.OnPlayerDataLoaded += OnPlayerDataLoaded;
         PlayerDataManager.OnUpdateRewardTimer += OnUpdateRewardTimer;
@@ -69,6 +70,7 @@ public class UiStartCanvas : MonoBehaviour
 
     private void OnDestroy()
     {
+        GpsManager.OnCloudDataLoaded -= OnCloudDataLoaded;
         PlayerDataManager.OnPlayerDataLoaded -= OnPlayerDataLoaded;
         OnToggleUiStartPanel -= ToggleUiStartPanel;
         tapToStartButton.onClick.RemoveListener(OnTapToStartButtonClicked);
@@ -80,6 +82,12 @@ public class UiStartCanvas : MonoBehaviour
         reviewAppButton.onClick.RemoveListener(OnReviewAppButtonPressed);
         PlayerDataManager.OnUpdateRewardTimer -= OnUpdateRewardTimer;
         PlayerDataManager.OnRewardAvailable -= OnRewardAvailable;
+    }
+
+    private void OnCloudDataLoaded(bool isCloudDataLoaded, string arg2)
+    {
+        leaderboardButton.interactable = isCloudDataLoaded;
+        achievementsButton.interactable = isCloudDataLoaded;
     }
 
     private void OnPlayerDataLoaded()
@@ -133,7 +141,7 @@ public class UiStartCanvas : MonoBehaviour
     {
         rewardsButton.interactable = false;
         PlayerDataManager.Instance.RewardDateTime = DateTime.UtcNow.AddHours(AppData.nextRewardInHours);
-        PlayerDataManager.Instance.SaveGameUserDataOnCloud();
+        PlayerDataManager.Instance.SaveGameUserData();
         StartCoroutine(RewardPlayer());
     }
 

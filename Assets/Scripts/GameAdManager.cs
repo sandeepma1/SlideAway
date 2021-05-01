@@ -6,15 +6,20 @@ using System;
 
 public class GameAdManager : Singleton<GameAdManager>
 {
-    public static Action OnWatchAdClicked;
+    public static Action<AdRewardType, string> OnWatchAd;
+    public static Action<string> OnAdWatchRewardPlayer;
+    public static Action OnAdFailed;
     [SerializeField] private bool showBanner;
+    [SerializeField] private RectTransform gemsRandomSpawnRect;
     private string gameIdAndroid = "4094845";
     private string gameIdIos = "4094844";
+    private string itemId = "";
+    private AdRewardType adRewardType;
 
     protected override void Awake()
     {
         base.Awake();
-        OnWatchAdClicked += ShowRewardVideo;
+        OnWatchAd += ShowRewardVideo;
         AdsManager.OnAdStatus += OnAdStatus;
     }
 
@@ -31,30 +36,38 @@ public class GameAdManager : Singleton<GameAdManager>
     private void OnDestroy()
     {
         AdsManager.OnAdStatus -= OnAdStatus;
-        OnWatchAdClicked -= ShowRewardVideo;
+        OnWatchAd -= ShowRewardVideo;
     }
 
-    private void ShowRewardVideo()
+    private void ShowRewardVideo(AdRewardType adRewardType, string itemId)
     {
+        this.adRewardType = adRewardType;
+        this.itemId = itemId;
         AdsManager.ShowRewardedAd?.Invoke();
     }
 
     private void OnAdStatus(AdStatus adStatus)
     {
-        if (adStatus != AdStatus.IsReady)
-        {
-            //ads ready
-        }
         switch (adStatus)
         {
             case AdStatus.Finished:
-                StartCoroutine(Add50Gems());
+                switch (adRewardType)
+                {
+                    case AdRewardType.FreeGems:
+                        StartCoroutine(Add50Gems());
+                        break;
+                    case AdRewardType.SingleReward:
+                        OnAdWatchRewardPlayer?.Invoke(itemId);
+                        break;
+                    default:
+                        break;
+                }
                 break;
             case AdStatus.Skipped:
-                break;
             case AdStatus.Error:
-                break;
             case AdStatus.Failed:
+                OnAdFailed?.Invoke();
+                Hud.SetHudText("Ad Skipped, Error or Failed");
                 break;
             case AdStatus.Started:
                 break;
@@ -73,4 +86,10 @@ public class GameAdManager : Singleton<GameAdManager>
             yield return new WaitForEndOfFrame();
         }
     }
+}
+
+public enum AdRewardType
+{
+    FreeGems,
+    SingleReward
 }

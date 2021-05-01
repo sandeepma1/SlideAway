@@ -57,6 +57,16 @@ public class UiShopItem : MonoBehaviour
         }
     }
 
+    public void DecreaseAdValueText()
+    {
+        shopItem.value--;
+        valueText.text = this.shopItem.value + " " + AppData.adIcon;
+        if (shopItem.value <= 0)
+        {
+            shopItem.isUnlocked = true;
+        }
+    }
+
     private void OnButtonClick()
     {
         OnButtonClicked?.Invoke(shopItem);

@@ -43,19 +43,22 @@ public class UiSingleShopPanel : MonoBehaviour
     private ShopItem curentSelectedItem;
     private ShopItem currentSelectedUnlocedItem;
     private bool isThisPanelCreated = false;
+    private string currentRequestedAdItemId = "";
 
     private void Awake()
     {
+        GameAdManager.OnAdWatchRewardPlayer += OnAdWatchedRewardPlayer;
         UiShopCanvas.OnIsShopMenuVisible += OnIsShopMenuVisible;
-        unlockButton.onClick.AddListener(OnUnlockButtonClicked);
-        watchAdButton.onClick.AddListener(OnWatchAdButtonClicked);
+        unlockButton.onClick.AddListener(OnUnlockWatchButtonClicked);
+        watchAdButton.onClick.AddListener(OnWatchAdForFreeGemsButtonClicked);
     }
 
     private void OnDestroy()
     {
+        GameAdManager.OnAdWatchRewardPlayer -= OnAdWatchedRewardPlayer;
         UiShopCanvas.OnIsShopMenuVisible -= OnIsShopMenuVisible;
-        unlockButton.onClick.RemoveListener(OnUnlockButtonClicked);
-        watchAdButton.onClick.RemoveListener(OnWatchAdButtonClicked);
+        unlockButton.onClick.RemoveListener(OnUnlockWatchButtonClicked);
+        watchAdButton.onClick.RemoveListener(OnWatchAdForFreeGemsButtonClicked);
     }
 
     private void OnIsShopMenuVisible(bool isShopMenuVisible) //If shop is closed
@@ -66,9 +69,9 @@ public class UiSingleShopPanel : MonoBehaviour
         }
     }
 
-    private void OnWatchAdButtonClicked()
+    private void OnWatchAdForFreeGemsButtonClicked()
     {
-        GameAdManager.OnWatchAdClicked?.Invoke();
+        GameAdManager.OnWatchAd?.Invoke(AdRewardType.FreeGems, "");
     }
 
     public void CreateShopItems(List<ShopItem> shopItems, ShopItemType shopItemType)
@@ -179,7 +182,7 @@ public class UiSingleShopPanel : MonoBehaviour
         }
     }
 
-    private void OnUnlockButtonClicked()
+    private void OnUnlockWatchButtonClicked()
     {
         switch (curentSelectedItem.typeEnum)
         {
@@ -200,11 +203,22 @@ public class UiSingleShopPanel : MonoBehaviour
                 }
                 break;
             case PurchaseType.Ads:
+                currentRequestedAdItemId = curentSelectedItem.id;
+                GameAdManager.OnWatchAd?.Invoke(AdRewardType.SingleReward, currentRequestedAdItemId);
                 break;
             case PurchaseType.Paid:
                 break;
             default:
                 break;
+        }
+    }
+
+    private void OnAdWatchedRewardPlayer(string itemId)
+    {
+        if (itemId == currentRequestedAdItemId)
+        {
+            uishopItems[itemId].DecreaseAdValueText();
+            PlayerDataManager.Instance.AdWatchedRewardBall(itemId);
         }
     }
 

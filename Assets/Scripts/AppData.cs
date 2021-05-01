@@ -22,6 +22,10 @@
     public const float floorLightness = 0.75f;
     public const float shopAnimSpeed = 0.25f;
 
+    //Local Playerprefs keys
+    public const string localSaveKey = "localSave";
+    public const string oldSaveKey = "BestScore";
+
     public const string shopItemsDbJsonPath = "DB/ShopDB";
     public const string allBallMatPath = "BallMaterials";
     public const string allBallIconsPath = "BallIcons";
