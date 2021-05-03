@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using TMPro;
 using System;
+using System.Collections.Generic;
+using System.Collections;
 
 public class UiPlayerDataHud : MonoBehaviour
 {
@@ -14,7 +16,7 @@ public class UiPlayerDataHud : MonoBehaviour
     {
         OnUpdateGemsValue += UpdateGems;
         OnUpdateScoreValue += UpdateCurrentScore;
-        PlayerDataManager.OnPlayerDataLoaded += OnPlayerDataLoaded;
+        Player.OnPlayerDataLoaded += OnPlayerDataLoaded;
         UiStartCanvas.OnGameStart += OnGameStart;
         PlayerController.OnGameOver += OnGameOver;
         scoreGo.SetActive(false);
@@ -23,7 +25,9 @@ public class UiPlayerDataHud : MonoBehaviour
 
     private void OnDestroy()
     {
-        PlayerDataManager.OnPlayerDataLoaded -= OnPlayerDataLoaded;
+        OnUpdateGemsValue -= UpdateGems;
+        OnUpdateScoreValue -= UpdateCurrentScore;
+        Player.OnPlayerDataLoaded -= OnPlayerDataLoaded;
         UiStartCanvas.OnGameStart -= OnGameStart;
         PlayerController.OnGameOver -= OnGameOver;
     }
@@ -51,6 +55,6 @@ public class UiPlayerDataHud : MonoBehaviour
 
     private void UpdateGems()
     {
-        gemsText.text = PlayerDataManager.Instance.GetGems().ToString();
+        gemsText.text = Player.GetGems().ToString();
     }
 }

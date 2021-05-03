@@ -2,24 +2,27 @@
 using DG.Tweening;
 using System.Collections;
 
-public class UiLoadingCanvas : MonoBehaviour
+public class UiLoadingCanvas : Singleton<UiLoadingCanvas>
 {
     [SerializeField] private GameObject mainPanel;
+    [SerializeField] private GameObject loadingText;
     [SerializeField] private CanvasGroup canvasGroup;
     [SerializeField] private Animation anim;
     private const float animSpeed = 0.5f;
     private bool isLoadingAnimationDone = false;
 
-    private void Awake()
+    protected override void Awake()
     {
+        base.Awake();
+        loadingText.gameObject.SetActive(false);
         mainPanel.gameObject.SetActive(true);
-        PlayerDataManager.OnPlayerDataLoaded += OnPlayerDataLoaded;
+        Player.OnPlayerDataLoaded += OnPlayerDataLoaded;
     }
 
     private void Start()
     {
         anim.Play();
-        if (PlayerDataManager.Instance.isPlayerDataLoaded)
+        if (Player.isPlayerDataLoaded)
         {
             StartCoroutine(StartGameWithDeay());
         }
@@ -27,7 +30,7 @@ public class UiLoadingCanvas : MonoBehaviour
 
     private void OnDestroy()
     {
-        PlayerDataManager.OnPlayerDataLoaded -= OnPlayerDataLoaded;
+        Player.OnPlayerDataLoaded -= OnPlayerDataLoaded;
     }
 
     private void OnPlayerDataLoaded()
@@ -45,5 +48,7 @@ public class UiLoadingCanvas : MonoBehaviour
         yield return new WaitForEndOfFrame();
         yield return new WaitForSeconds(1.5f);
         canvasGroup.DOFade(0, animSpeed).OnComplete(() => mainPanel.SetActive(false));
+        yield return new WaitForSeconds(3f);
+        loadingText.gameObject.SetActive(true);
     }
 }

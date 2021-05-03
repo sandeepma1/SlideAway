@@ -3,123 +3,93 @@
     "m_SelectedPackage": {
         "deviceId": "16e3121d",
         "name": "com.bronz.slideway",
-        "processId": 20239,
+        "processId": 29639,
         "exited": false
     },
     "m_SelectedPriority": 0,
     "m_KnownPackagesForSerialization": [
         {
             "deviceId": "16e3121d",
+            "name": "com.bronz.slideway",
+            "processId": 4086,
+            "exited": true
+        },
+        {
+            "deviceId": "16e3121d",
+            "name": "com.bronz.slideway",
+            "processId": 4680,
+            "exited": true
+        },
+        {
+            "deviceId": "16e3121d",
             "name": "com.mi.android.globallauncher",
-            "processId": 3786,
+            "processId": 14659,
             "exited": false
         },
         {
             "deviceId": "16e3121d",
             "name": "com.bronz.slideway",
-            "processId": 7319,
+            "processId": 5908,
+            "exited": true
+        },
+        {
+            "deviceId": "16e3121d",
+            "name": "com.google.android.gms.ui",
+            "processId": 9831,
             "exited": true
         },
         {
             "deviceId": "16e3121d",
             "name": "com.bronz.slideway",
-            "processId": 8057,
+            "processId": 9384,
             "exited": true
         },
         {
             "deviceId": "16e3121d",
-            "name": "com.bronz.slideway",
-            "processId": 9238,
-            "exited": true
-        },
-        {
-            "deviceId": "16e3121d",
-            "name": "com.bronz.slideway",
-            "processId": 10038,
-            "exited": true
-        },
-        {
-            "deviceId": "16e3121d",
-            "name": "com.bronz.slideway",
-            "processId": 10933,
-            "exited": true
-        },
-        {
-            "deviceId": "16e3121d",
-            "name": "com.bronz.slideway",
-            "processId": 11740,
+            "name": "com.android.vending",
+            "processId": 15209,
             "exited": false
         },
         {
             "deviceId": "16e3121d",
             "name": "com.bronz.slideway",
-            "processId": 13059,
+            "processId": 15058,
             "exited": false
         },
         {
             "deviceId": "16e3121d",
             "name": "com.bronz.slideway",
-            "processId": 15221,
+            "processId": 17047,
             "exited": false
         },
         {
             "deviceId": "16e3121d",
             "name": "com.bronz.slideway",
-            "processId": 15665,
+            "processId": 9467,
             "exited": false
         },
         {
             "deviceId": "16e3121d",
             "name": "com.bronz.slideway",
-            "processId": 2497,
+            "processId": 15015,
             "exited": false
         },
         {
             "deviceId": "16e3121d",
             "name": "com.bronz.slideway",
-            "processId": 16226,
+            "processId": 17115,
             "exited": false
         },
         {
             "deviceId": "16e3121d",
             "name": "com.bronz.slideway",
-            "processId": 19495,
+            "processId": 20632,
             "exited": false
         },
         {
             "deviceId": "16e3121d",
             "name": "com.bronz.slideway",
-            "processId": 20763,
-            "exited": false
-        },
-        {
-            "deviceId": "16e3121d",
-            "name": "com.bronz.slideway",
-            "processId": 26156,
-            "exited": false
-        },
-        {
-            "deviceId": "16e3121d",
-            "name": "com.bronz.slideway",
-            "processId": 29332,
-            "exited": false
-        },
-        {
-            "deviceId": "16e3121d",
-            "name": "com.bronz.slideway",
-            "processId": 6607,
-            "exited": false
-        },
-        {
-            "deviceId": "16e3121d",
-            "name": "com.bronz.slideway",
-            "processId": 18420,
-            "exited": false
-        },
-        {
-            "deviceId": "16e3121d",
-            "name": "com.bronz.slideway",
-            "processId": 20239,
+            "processId": 29639,
             "exited": false
         },
         {

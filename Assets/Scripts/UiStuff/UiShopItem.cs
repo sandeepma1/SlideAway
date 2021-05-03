@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
@@ -7,12 +6,15 @@ using TMPro;
 public class UiShopItem : MonoBehaviour
 {
     public Action<string> OnButtonClicked;
+    public Action<string> OnPaidPurchaseComplete;
+    public Action<string> OnPaidPurchaseFailed;
     [SerializeField] private Button button;
     [SerializeField] private TextMeshProUGUI valueText;
     [SerializeField] private RectTransform rect;
     [SerializeField] private Image itemImage;
     [SerializeField] private GameObject valueGO;
     private string itemId;
+    private float value;
 
     private void OnDestroy()
     {
@@ -35,8 +37,8 @@ public class UiShopItem : MonoBehaviour
 
     private void UpdateItemValue()
     {
-        float value = ShopItems.allShopItems[itemId].value;
-        switch (ShopItems.allShopItems[itemId].currencyTypeEnum)
+        value = Shop.items[itemId].value;
+        switch (Shop.items[itemId].currencyTypeEnum)
         {
             case CurrencyType.Gems:
                 valueText.text = value + " " + AppData.gemIcon;
@@ -54,19 +56,19 @@ public class UiShopItem : MonoBehaviour
 
     public void UpdateAdItemValue()
     {
-        if (PlayerDataManager.Instance.playerData.adsWatched.ContainsKey(itemId))
+        if (Player.save.adsWatched.ContainsKey(itemId))
         {
-            valueText.text = PlayerDataManager.Instance.playerData.adsWatched[itemId] + " " + AppData.adIcon;
+            valueText.text = Player.save.adsWatched[itemId] + " " + AppData.adIcon;
         }
         else
         {
-            valueText.text = ShopItems.allShopItems[itemId].value + " " + AppData.adIcon;
+            valueText.text = Shop.items[itemId].value + " " + AppData.adIcon;
         }
     }
 
     public void UpdateItemStatus()
     {
-        bool isItemUnlocked = PlayerDataManager.Instance.IsItemUnlocked(itemId);
+        bool isItemUnlocked = Player.IsItemUnlocked(itemId);
         valueGO.SetActive(!isItemUnlocked);
         if (isItemUnlocked)
         {

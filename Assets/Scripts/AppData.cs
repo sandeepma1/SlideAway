@@ -1,37 +1,56 @@
-﻿public static class AppData
+﻿internal static class AppData
 {
-    public static int currentScore;
+    internal static int currentScore;
     //Achivements
-    public const int achievementValue1 = 50;
-    public const int achievementValue2 = 100;
-    public const int achievementValue3 = 250;
+    internal const int achievementValue1 = 50;
+    internal const int achievementValue2 = 100;
+    internal const int achievementValue3 = 250;
+    internal const int achievementValue4 = 500;
+    internal const int achievementValue5 = 1000;
+    internal const int achievementValue6 = 1500;
+    internal const int achievementValue7 = 3000;
+    internal const int achievementValue8 = 5000;
+    internal const int achievementValue9 = 10000;
 
     //Ball variables
-    public const float minSpeed = 12;
-    public const float maxSpeed = 18;
+    internal const float minSpeed = 12;
+    internal const float maxSpeed = 18;
 
     //Tile Manager
-    public const int gemSpawnRate = 10;//higher is less spawn
+    internal const int gemSpawnRate = 10;//higher is less spawn
 
     //Rewards
-    public const int nextRewardInHours = 6;
-    public const int gemsRewards = 25;
+    internal const int nextRewardInHours = 6;
+    internal const int adGemsRewards = 50;
+    internal const int dailyGemsRewards = 75;
 
     //Misc
-    public const float floorSaturation = 0.8f;
-    public const float floorLightness = 0.75f;
-    public const float shopAnimSpeed = 0.25f;
+    internal const float floorSaturation = 0.8f;
+    internal const float floorLightness = 0.75f;
+
+    internal const float shopAnimSpeed = 0.25f;
+    internal const float gemsAnimSpeed = 1f;
 
     //Local Playerprefs keys
-    public const string localSaveKey = "localSave";
-    public const string oldSaveKey = "BestScore";
+    internal const string localSaveKey = "localSave";
+    internal const string oldSaveKey = "BestScore";
 
-    public const string shopItemsDbJsonPath = "ShopDatabase/ShopDatabase";
-    public const string allShopItemsIconPath = "AllItemIcons";
-    public const string allShopItemsMatPath = "AllItemMaterials";
+    internal const string shopItemsDbJsonPath = "ShopDatabase/ShopDatabase";
+    internal const string allShopItemsIconPath = "AllItemIcons";
+    internal const string allShopItemsMatPath = "AllItemMaterials";
 
-    public const string gemIcon = "<sprite=0>";
-    public const string adIcon = "<sprite=1>";
+    //All IAP infp
+    internal const string iapCatalogFileJson = "Assets/Resources/IAPProductCatalog.json";
+    internal const string epicBall = "com.bronz.slideway.epicball";
+    internal const string greatball = "com.bronz.slideway.greatball";
+    internal const string commonball = "com.bronz.slideway.commonball";
+    internal const string coins8000 = "com.bronz.slideway.coins8000";
+    internal const string coins3500 = "com.bronz.slideway.coins3500";
+    internal const string coins500 = "com.bronz.slideway.coins500";
+    internal const string removeads = "com.bronz.slideway.removeads";
 
-    public const string saveVersion = "0.1";
+    internal const string gemIcon = "<sprite=0>";
+    internal const string adIcon = "<sprite=1>";
+
+    internal const string saveVersion = "0.1";
 }

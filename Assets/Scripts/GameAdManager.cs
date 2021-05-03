@@ -54,7 +54,7 @@ public class GameAdManager : Singleton<GameAdManager>
                 switch (adRewardType)
                 {
                     case AdRewardType.FreeGems:
-                        StartCoroutine(Add50Gems());
+                        UiGemsSpawnCanvas.OnSpawnMultipleGem2d?.Invoke(AppData.adGemsRewards);
                         break;
                     case AdRewardType.SingleReward:
                         OnAdWatchRewardPlayer?.Invoke(itemId);
@@ -67,7 +67,7 @@ public class GameAdManager : Singleton<GameAdManager>
             case AdStatus.Error:
             case AdStatus.Failed:
                 OnAdFailed?.Invoke();
-                Hud.SetHudText("Ad Skipped, Error or Failed");
+                Hud.SetHudText?.Invoke("Ad Skipped, Error or Failed");
                 break;
             case AdStatus.Started:
                 break;
@@ -75,15 +75,6 @@ public class GameAdManager : Singleton<GameAdManager>
                 break;
             default:
                 break;
-        }
-    }
-
-    private IEnumerator Add50Gems()
-    {
-        for (int i = 0; i < 50; i++)
-        {
-            UiGemsSpawnCanvas.OnSpawnGem2d(Vector2.zero);
-            yield return new WaitForEndOfFrame();
         }
     }
 }

@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -82,7 +80,7 @@ public class UiDebugStuff : MonoBehaviour
 
     private void OnAddGemsClicked()
     {
-        PlayerDataManager.Instance.IncrementGems(100);
-        UiGemsSpawnCanvas.OnSpawnGem2d(rectTransform.anchoredPosition);
+        Player.IncrementGems(500);
+        UiGemsSpawnCanvas.OnSpawnSingleGem2d(rectTransform.anchoredPosition);
     }
 }

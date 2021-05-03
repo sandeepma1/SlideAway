@@ -4,45 +4,66 @@ using System.Collections;
 
 public class UiGemsSpawnCanvas : MonoBehaviour
 {
-    public static Action<Transform> OnSpawnGem;
-    public static Action<Vector2> OnSpawnGem2d;
+    public static Action<Transform> OnSpawnSingleGem3D;
+    public static Action<Vector2> OnSpawnSingleGem2d;
+    public static Action<int> OnSpawnMultipleGem2d;
     [SerializeField] private RectTransform gemEndPosition;
+    [SerializeField] private RectTransform gemSpawnRect;
     [SerializeField] private UiGemSpawn uiGemSpawnPrefab;
     private Canvas mainCanvas;
-    private const float animSpeed = 1;
 
     private void Awake()
     {
-        OnSpawnGem += SpawnGem;
-        OnSpawnGem2d += SpawnGem2d;
         mainCanvas = GetComponent<Canvas>();
+        OnSpawnSingleGem3D += SpawnSingleGem;
+        OnSpawnSingleGem2d += SpawnSingleGem2d;
+        OnSpawnMultipleGem2d += SpawnMultipleGems2D;
     }
 
     private void OnDestroy()
     {
-        OnSpawnGem -= SpawnGem;
-        OnSpawnGem2d -= SpawnGem2d;
+        OnSpawnSingleGem3D -= SpawnSingleGem;
+        OnSpawnSingleGem2d -= SpawnSingleGem2d;
+        OnSpawnMultipleGem2d -= SpawnMultipleGems2D;
     }
 
-    private void SpawnGem(Transform worldTransform)
+    private void SpawnMultipleGems2D(int amount)
     {
-        UiGemSpawn uiGemSpawn = Instantiate(uiGemSpawnPrefab, transform);
-        uiGemSpawn.InitItem(worldTransform, mainCanvas, gemEndPosition.localPosition, animSpeed);
-        PlayerDataManager.Instance.IncrementGems(1);
+        StartCoroutine(SpawnMultipleGems2DSub(amount));
+    }
+
+    private IEnumerator SpawnMultipleGems2DSub(int amount)
+    {
+        for (int i = 0; i < amount; i++)
+        {
+            Vector2 randomPoint = gemSpawnRect.GetRandomPointInRectTransform();
+            UiGemSpawn uiGemSpawn = Instantiate(uiGemSpawnPrefab, transform);
+            uiGemSpawn.InitItem2d(randomPoint, gemEndPosition.localPosition, AppData.gemsAnimSpeed);
+            yield return new WaitForEndOfFrame();
+        }
+        Player.IncrementGems(amount);
         StartCoroutine(UpdateGemAmountDelay());
     }
 
-    private void SpawnGem2d(Vector2 position)
+    private void SpawnSingleGem(Transform worldTransform)
     {
         UiGemSpawn uiGemSpawn = Instantiate(uiGemSpawnPrefab, transform);
-        uiGemSpawn.InitItem2d(position, gemEndPosition.localPosition, animSpeed);
-        PlayerDataManager.Instance.IncrementGems(1);
+        uiGemSpawn.InitItem(worldTransform, mainCanvas, gemEndPosition.localPosition, AppData.gemsAnimSpeed);
+        Player.IncrementGems(1);
+        StartCoroutine(UpdateGemAmountDelay());
+    }
+
+    private void SpawnSingleGem2d(Vector2 position)
+    {
+        UiGemSpawn uiGemSpawn = Instantiate(uiGemSpawnPrefab, transform);
+        uiGemSpawn.InitItem2d(position, gemEndPosition.localPosition, AppData.gemsAnimSpeed);
+        Player.IncrementGems(1);
         StartCoroutine(UpdateGemAmountDelay());
     }
 
     private IEnumerator UpdateGemAmountDelay()
     {
-        yield return new WaitForSeconds(animSpeed);
+        yield return new WaitForSeconds(AppData.gemsAnimSpeed);
         UiPlayerDataHud.OnUpdateGemsValue?.Invoke();
     }
 }

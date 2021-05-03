@@ -24,10 +24,16 @@
 
 public static class GPGSIds
 {
-        public const string achievement_next_250 = "CgkIyqv0lcUPEAIQAg"; // <GPGSID>
-        public const string achievement_first_50 = "CgkIyqv0lcUPEAIQAQ"; // <GPGSID>
-        public const string achievement_century_100 = "CgkIyqv0lcUPEAIQAA"; // <GPGSID>
-        public const string leaderboard_high_score__slide_away = "CgkIyqv0lcUPEAIQBA"; // <GPGSID>
+        public const string achievement_score_100 = "CgkIyqv0lcUPEAIQAA"; // <GPGSID>
+        public const string achievement_score_250 = "CgkIyqv0lcUPEAIQAg"; // <GPGSID>
+        public const string achievement_score_1500 = "CgkIyqv0lcUPEAIQBw"; // <GPGSID>
+        public const string achievement_score_10000 = "CgkIyqv0lcUPEAIQCg"; // <GPGSID>
+        public const string achievement_score_5000 = "CgkIyqv0lcUPEAIQCQ"; // <GPGSID>
+        public const string leaderboard_high_score = "CgkIyqv0lcUPEAIQBA"; // <GPGSID>
+        public const string achievement_score_1000 = "CgkIyqv0lcUPEAIQBg"; // <GPGSID>
+        public const string achievement_score_3000 = "CgkIyqv0lcUPEAIQCA"; // <GPGSID>
+        public const string achievement_score_500 = "CgkIyqv0lcUPEAIQBQ"; // <GPGSID>
+        public const string achievement_score_50 = "CgkIyqv0lcUPEAIQAQ"; // <GPGSID>
 
 }
 

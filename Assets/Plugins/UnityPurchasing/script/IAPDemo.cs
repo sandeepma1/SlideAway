@@ -245,7 +245,7 @@ public class IAPDemo : MonoBehaviour, IStoreListener
                 return PurchaseProcessingResult.Complete;
             }
         }
-        #endif
+#endif
 
         // Unlock content from purchases here.
 #if USE_PAYOUTS
@@ -425,8 +425,8 @@ public class IAPDemo : MonoBehaviour, IStoreListener
         );
 
         builder.AddProduct("300.gold.coins", ProductType.Consumable, new IDs
-            {
-            }
+        {
+        }
 #if USE_PAYOUTS
         , new List<PayoutDefinition> {
             new PayoutDefinition(PayoutType.Item, "", 1, "item_id:76543"),
@@ -467,11 +467,11 @@ public class IAPDemo : MonoBehaviour, IStoreListener
 
 #if RECEIPT_VALIDATION
         string appIdentifier;
-        #if UNITY_5_6_OR_NEWER
+#if UNITY_5_6_OR_NEWER
         appIdentifier = Application.identifier;
-        #else
+#else
         appIdentifier = Application.bundleIdentifier;
-        #endif
+#endif
         validator = new CrossPlatformValidator(GooglePlayTangle.Data(), AppleTangle.Data(), appIdentifier);
 #endif
 

@@ -27,14 +27,14 @@ public class Purchaser : MonoBehaviour, IStoreListener
         {
             return;
         }
-        //var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
-        //builder.AddProduct(kProductIDConsumable, ProductType.Consumable);
-        //builder.AddProduct(kProductIDNonConsumable, ProductType.NonConsumable);
-        //builder.AddProduct(kProductIDSubscription, ProductType.Subscription, new IDs(){
-        //        { kProductNameAppleSubscription, "AppleAppStore.Name" },
-        //        { kProductNameGooglePlaySubscription, "GooglePlay.Name" },
-        //    });
-        //UnityPurchasing.Initialize(this, builder);
+        var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
+        builder.AddProduct(kProductIDConsumable, ProductType.Consumable);
+        builder.AddProduct(kProductIDNonConsumable, ProductType.NonConsumable);
+        builder.AddProduct(kProductIDSubscription, ProductType.Subscription, new IDs(){
+                { kProductNameAppleSubscription, "AppleAppStore.Name" },
+                { kProductNameGooglePlaySubscription, "GooglePlay.Name" },
+            });
+        UnityPurchasing.Initialize(this, builder);
     }
 
     private bool IsInitialized()

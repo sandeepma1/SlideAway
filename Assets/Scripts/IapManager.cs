@@ -1,53 +1,49 @@
-﻿using System;
-using UnityEngine;
-using UnityEngine.Purchasing;
+﻿using UnityEngine.Purchasing;
+using System.Collections;
+using System;
+using Unity;
+using System.Collections.Generic;
 
-public class IapManager : MonoBehaviour
+public class IapManager : Singleton<IapManager>
 {
-    [SerializeField] private IAPButton add500CoinsIAPButton;
-    [SerializeField] private IAPButton removeAdsIAPButton;
-    [SerializeField] private IAPButton restorePurchaseIAPButton;
+    public static Action<Product> OnPurchaseComplete;
+    public static Action<Product> OnPurchaseFailed;
+    private IAPListener iAPListener;
+    private Dictionary<string, ProductCatalogItem> products = new Dictionary<string, ProductCatalogItem>();
 
-
-    private void Start()
+    protected override void Awake()
     {
-        add500CoinsIAPButton.onPurchaseComplete.AddListener(OnAdd500CoinsPurchasedComplete);
-        add500CoinsIAPButton.onPurchaseFailed.AddListener(OnAdd500CoinsPurchasedFailed);
-
-        removeAdsIAPButton.onPurchaseComplete.AddListener(OnRemoveAdsPurchasedComplete);
-        removeAdsIAPButton.onPurchaseFailed.AddListener(OnRemoveAdsPurchasedFailed);
-
-        restorePurchaseIAPButton.onPurchaseComplete.AddListener(OnRestorePurchasePressed);
-        restorePurchaseIAPButton.onPurchaseFailed.AddListener(OnRestorePurchaseFailed);
+        base.Awake();
+        iAPListener = GetComponent<IAPListener>();
+        iAPListener.onPurchaseComplete.AddListener(onPurchaseComplete);
+        iAPListener.onPurchaseFailed.AddListener(onPurchaseFailed);
+        ProductCatalog productCatalog = ProductCatalog.LoadDefaultCatalog();
+        foreach (var item in productCatalog.allProducts)
+        {
+            products.Add(item.id, item);
+        }
     }
 
-    private void OnAdd500CoinsPurchasedFailed(Product product, PurchaseFailureReason purchaseFailureReason)
+    private void OnDestroy()
     {
-        Hud.SetHudText?.Invoke("OnAdd500CoinsPurchasedFailed \n" + purchaseFailureReason);
+        iAPListener.onPurchaseComplete.RemoveListener(onPurchaseComplete);
+        iAPListener.onPurchaseFailed.RemoveListener(onPurchaseFailed);
     }
 
-    private void OnRemoveAdsPurchasedFailed(Product product, PurchaseFailureReason purchaseFailureReason)
+    private void onPurchaseComplete(Product product)
     {
-        Hud.SetHudText?.Invoke("OnRemoveAdsPurchasedFailed \n" + purchaseFailureReason);
+        OnPurchaseComplete?.Invoke(product);
+        Hud.SetHudText?.Invoke(product.definition.id + "  OnPurchaseComplete");
     }
 
-    private void OnRestorePurchaseFailed(Product product, PurchaseFailureReason purchaseFailureReason)
+    private void onPurchaseFailed(Product product, PurchaseFailureReason failureReason)
     {
-        Hud.SetHudText?.Invoke("OnRestorePurchaseFailed \n" + purchaseFailureReason);
+        OnPurchaseFailed?.Invoke(product);
+        Hud.SetHudText?.Invoke(product.definition.id + "  OnPurchaseFailed " + "/n" + failureReason);
     }
 
-    private void OnRestorePurchasePressed(Product product)
+    public ProductCatalogItem GetProductByItem(string itemId)
     {
-        Hud.SetHudText?.Invoke("OnRestorePurchasePressed");
-    }
-
-    private void OnRemoveAdsPurchasedComplete(Product product)
-    {
-        Hud.SetHudText?.Invoke("OnRemoveAdsPurchasedComplete");
-    }
-
-    private void OnAdd500CoinsPurchasedComplete(Product product)
-    {
-        Hud.SetHudText?.Invoke("OnAdd500CoinsPurchasedComplete");
+        return products[itemId];
     }
 }
