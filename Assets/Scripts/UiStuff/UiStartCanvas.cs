@@ -68,6 +68,10 @@ public class UiStartCanvas : MonoBehaviour
         reviewAppButton.onClick.AddListener(OnReviewAppButtonPressed);
         UpdateAllSavedValues();
         InvokeRepeating("CheckReward", 1f, 1f);
+        if (!Player.IsPlayerDataNull())
+        {
+            OnCloudDataLoaded(Player.isCloudDataLoaded, "");
+        }
     }
 
     private void OnDestroy()
