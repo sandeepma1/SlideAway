@@ -50,6 +50,7 @@ internal static class Player
     private static void OnCloudDataLoaded(bool isCloudDataLoaded, string cloudData)
     {
         Player.isCloudDataLoaded = isCloudDataLoaded;
+
         Hud.SetHudText?.Invoke("Started loading data " + cloudData);
         if (PlayerPrefs.HasKey(AppData.oldSaveKey)) //Has old saves, add it
         {
@@ -66,14 +67,14 @@ internal static class Player
                 }
                 else //Load from cloud save
                 {
-                    LoadSaveData(true, cloudData);
+                    CompareCloudWithLocalSaveAndLoad(cloudData);
                 }
             }
             else //load local save
             {
                 if (PlayerPrefs.HasKey(AppData.localSaveKey))
                 {
-                    LoadSaveData(false, LoadLocalData());
+                    LoadSaveData(LoadLocalData());
                 }
                 else
                 {
@@ -86,11 +87,9 @@ internal static class Player
         AnalyticsManager.GameStartSaveType(isCloudDataLoaded);
     }
 
-    private static void LoadSaveData(bool isCloudSave, string saveData)
+    private static void LoadSaveData(string saveData)
     {
-        //ProcessLatestSave(isCloudSave, saveData);
         save = JsonUtility.FromJson<PlayerData>(saveData);
-        //Created dictonary from a list of AdsWatchedItems for ease
         save.ListToDictonary();
         lastPlayedDateTime = JsonUtility.FromJson<JsonDateTime>(save.lastPlayedDateTime);
         rewardsDateTime = JsonUtility.FromJson<JsonDateTime>(save.nextRewardDateTime);
@@ -143,39 +142,27 @@ internal static class Player
         SaveGameUserData();
     }
 
-    private static void ProcessLatestSave(bool isCloudSave, string saveData)
+    private static void CompareCloudWithLocalSaveAndLoad(string cloudData)
     {
-        DateTime cloudLastPlayedDateTime;
-        DateTime localLastPlayedDateTime;
+        string cloudLastPlayedDateTimeString = JsonUtility.FromJson<PlayerData>(cloudData).lastPlayedDateTime;
+        string localLastPlayedDateTimeString = JsonUtility.FromJson<PlayerData>(LoadLocalData()).lastPlayedDateTime;
 
-        if (isCloudSave)
+        DateTime cloudLastPlayedDateTime = JsonUtility.FromJson<JsonDateTime>(cloudLastPlayedDateTimeString);
+        DateTime localLastPlayedDateTime = JsonUtility.FromJson<JsonDateTime>(localLastPlayedDateTimeString);
+
+        Hud.SetHudText?.Invoke("cloudLastPlayedDateTime.Ticks " + cloudLastPlayedDateTime.Ticks);
+        Hud.SetHudText?.Invoke("localLastPlayedDateTime.Ticks " + localLastPlayedDateTime.Ticks);
+        if (localLastPlayedDateTime.Ticks > cloudLastPlayedDateTime.Ticks)
         {
-            cloudLastPlayedDateTime = JsonUtility.FromJson<JsonDateTime>(save.lastPlayedDateTime);
+            LoadSaveData(LoadLocalData());
+            Hud.SetHudText?.Invoke("Loading local");
         }
         else
         {
-            string localDataString = LoadLocalData();
-            if (!String.IsNullOrEmpty(localDataString))
-            {
-                PlayerData localData = JsonUtility.FromJson<PlayerData>(localDataString);
-                localLastPlayedDateTime = JsonUtility.FromJson<JsonDateTime>(localData.lastPlayedDateTime);
-            }
+            LoadSaveData(cloudData);
+            Hud.SetHudText?.Invoke("Loading cloud");
         }
     }
-
-    //// Do not delete InvokeRepeating("CheckReward", 1f, 1f);
-    // private static void CheckReward()
-    // {
-    //     rewardTimeSpan = rewardsDateTime.Subtract(DateTime.UtcNow);
-    //     if (rewardTimeSpan.TotalSeconds <= 0)
-    //     {
-    //         OnRewardAvailable?.Invoke();
-    //     }
-    //     else
-    //     {
-    //         OnUpdateRewardTimer?.Invoke(rewardTimeSpan.ToFormattedDuration());
-    //     }
-    // }
     #endregion
 
 
