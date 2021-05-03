@@ -8,9 +8,9 @@ public class CameraFollow : MonoBehaviour
     private bool gameOver = false;
     private Vector3 offset;
     private Camera mainCamera;
-    private const float normalYPos = 17;
+    private const float normalYPos = 17;//17
     private const float shopYPos = 18f;
-    private const float normalZoom = 15;
+    private const float normalZoom = 15f;//15
     private const float shopZoom = 7;
 
     private void Awake()
