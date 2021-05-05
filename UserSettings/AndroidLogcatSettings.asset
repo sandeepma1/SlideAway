@@ -3,7 +3,7 @@
     "m_SelectedPackage": {
         "deviceId": "16e3121d",
         "name": "com.bronz.slideway",
-        "processId": 11258,
+        "processId": 23763,
         "exited": false
     },
     "m_SelectedPriority": 0,
@@ -48,6 +48,18 @@
             "deviceId": "16e3121d",
             "name": "com.bronz.slideway",
             "processId": 11258,
+            "exited": false
+        },
+        {
+            "deviceId": "16e3121d",
+            "name": "com.bronz.slideway",
+            "processId": 18699,
+            "exited": false
+        },
+        {
+            "deviceId": "16e3121d",
+            "name": "com.bronz.slideway",
+            "processId": 23763,
             "exited": false
         },
         {

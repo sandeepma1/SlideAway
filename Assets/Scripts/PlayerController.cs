@@ -107,19 +107,18 @@ public class PlayerController : MonoBehaviour
         {
             OnBallGemTouched?.Invoke();
             other.gameObject.SetActive(false);
-            UpdateScoreAndBallSpeed(2);
+            UpdateScoreAndBallSpeed(3);
             UiGemsSpawnCanvas.OnSpawnSingleGem3D?.Invoke(transform);
             StartCoroutine(ShowPlus3Text());
         }
     }
 
-    private Vector3 restPosition = new Vector3(0, 1, 0);
+    private Vector3 plus3TextPosition = new Vector3(0, 1, 0);
     private IEnumerator ShowPlus3Text()
     {
-        plus3TextSprite.transform.localPosition = restPosition;
+        plus3TextSprite.transform.localPosition = plus3TextPosition;
         plus3TextSprite.DOFade(1, 0.1f);
-        plus3TextSprite.transform.DOLocalMoveY(2, 0.5f).OnComplete(() => plus3TextSprite.DOFade(0, 0.15f));
-
+        plus3TextSprite.transform.DOLocalMoveY(3, 0.5f).OnComplete(() => plus3TextSprite.DOFade(0, 0.15f));
         yield return new WaitForEndOfFrame();
     }
 
@@ -141,10 +140,6 @@ public class PlayerController : MonoBehaviour
         AppData.currentScore += adder;
         UiPlayerDataHud.OnUpdateScoreValue?.Invoke();
         CheckAchievements();
-        //Change color of floor
-        //scoreHue = Clamp0360((float)AppData.currentScore) / 360.0f;
-        //floorMaterial.color = Color.HSVToRGB(scoreHue, AppData.floorSaturation, AppData.floorLightness);
-        //Change speed of ball with speed
         if (speed <= AppData.maxSpeed)
         {
             speed = ((float)AppData.currentScore / 100.0f) + AppData.minSpeed;
@@ -162,25 +157,25 @@ public class PlayerController : MonoBehaviour
                 GpsManager.Instance.UnlockAchievement(GPGSIds.achievement_score_100);
                 break;
             case int n when (n >= AppData.achievementValue3 && n <= AppData.achievementValue3 + 5):
-                GpsManager.Instance.UnlockAchievement(GPGSIds.achievement_score_500);
+                GpsManager.Instance.UnlockAchievement(GPGSIds.achievement_score_250);
                 break;
             case int n when (n >= AppData.achievementValue4 && n <= AppData.achievementValue4 + 5):
                 GpsManager.Instance.UnlockAchievement(GPGSIds.achievement_score_500);
                 break;
             case int n when (n >= AppData.achievementValue5 && n <= AppData.achievementValue5 + 5):
-                GpsManager.Instance.UnlockAchievement(GPGSIds.achievement_score_500);
+                GpsManager.Instance.UnlockAchievement(GPGSIds.achievement_score_1000);
                 break;
             case int n when (n >= AppData.achievementValue6 && n <= AppData.achievementValue6 + 5):
-                GpsManager.Instance.UnlockAchievement(GPGSIds.achievement_score_500);
+                GpsManager.Instance.UnlockAchievement(GPGSIds.achievement_score_1500);
                 break;
             case int n when (n >= AppData.achievementValue7 && n <= AppData.achievementValue7 + 5):
-                GpsManager.Instance.UnlockAchievement(GPGSIds.achievement_score_500);
+                GpsManager.Instance.UnlockAchievement(GPGSIds.achievement_score_3000);
                 break;
             case int n when (n >= AppData.achievementValue8 && n <= AppData.achievementValue8 + 5):
-                GpsManager.Instance.UnlockAchievement(GPGSIds.achievement_score_500);
+                GpsManager.Instance.UnlockAchievement(GPGSIds.achievement_score_5000);
                 break;
             case int n when (n >= AppData.achievementValue9 && n <= AppData.achievementValue9 + 5):
-                GpsManager.Instance.UnlockAchievement(GPGSIds.achievement_score_500);
+                GpsManager.Instance.UnlockAchievement(GPGSIds.achievement_score_10000);
                 break;
             default:
                 break;

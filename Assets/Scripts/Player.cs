@@ -67,6 +67,7 @@ internal static class Player
                 LoadSaveData(LoadLocalData());
             }
         }
+        CheckAchievements();
         isPlayerDataLoaded = true;
         OnPlayerDataLoaded?.Invoke();
         AnalyticsManager.GameStartSaveType(isCloudDataLoaded);
@@ -82,6 +83,12 @@ internal static class Player
         }
         rewardsDateTime = DateTime.UtcNow;
         Hud.SetHudText?.Invoke("Created new save, checking achievements");
+        CheckAchievements();
+        SaveGameUserData();
+    }
+
+    private static void CheckAchievements()
+    {
         if (save.highScore >= AppData.achievementValue1)
         {
             GpsManager.Instance.UnlockAchievement(GPGSIds.achievement_score_50);
@@ -118,7 +125,6 @@ internal static class Player
         {
             GpsManager.Instance.UnlockAchievement(GPGSIds.achievement_score_10000);
         }
-        SaveGameUserData();
     }
 
     private static void CompareCloudWithLocalSaveAndLoad(string cloudData)
