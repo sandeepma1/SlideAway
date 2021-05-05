@@ -3,17 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Purchasing;
 
-public class Purchaser : MonoBehaviour, IStoreListener
+public class Purchaser : Singleton<Purchaser>, IStoreListener
 {
     private static IStoreController m_StoreController;
     private static IExtensionProvider m_StoreExtensionProvider;
-    public static string kProductIDConsumable = "consumable";
-    public static string kProductIDNonConsumable = "nonconsumable";
-    public static string kProductIDSubscription = "subscription";
-    private static string kProductNameAppleSubscription = "com.unity3d.subscription.new";
-    private static string kProductNameGooglePlaySubscription = "com.unity3d.subscription.original";
 
-    void Start()
+    private void Start()
     {
         if (m_StoreController == null)
         {
@@ -28,12 +23,10 @@ public class Purchaser : MonoBehaviour, IStoreListener
             return;
         }
         var builder = ConfigurationBuilder.Instance(StandardPurchasingModule.Instance());
-        builder.AddProduct(kProductIDConsumable, ProductType.Consumable);
-        builder.AddProduct(kProductIDNonConsumable, ProductType.NonConsumable);
-        builder.AddProduct(kProductIDSubscription, ProductType.Subscription, new IDs(){
-                { kProductNameAppleSubscription, "AppleAppStore.Name" },
-                { kProductNameGooglePlaySubscription, "GooglePlay.Name" },
-            });
+        builder.AddProduct(AppData.gemsTier1ProductId, ProductType.Consumable);
+        builder.AddProduct(AppData.gemsTier2ProductId, ProductType.Consumable);
+        builder.AddProduct(AppData.gemsTier3ProductId, ProductType.Consumable);
+        builder.AddProduct(AppData.gemsTier4ProductId, ProductType.Consumable);
         UnityPurchasing.Initialize(this, builder);
     }
 
@@ -42,19 +35,25 @@ public class Purchaser : MonoBehaviour, IStoreListener
         return m_StoreController != null && m_StoreExtensionProvider != null;
     }
 
-    public void BuyConsumable()
+    public void BuyConsumable(int tierId)
     {
-        BuyProductID(kProductIDConsumable);
-    }
-
-    public void BuyNonConsumable()
-    {
-        BuyProductID(kProductIDNonConsumable);
-    }
-
-    public void BuySubscription()
-    {
-        BuyProductID(kProductIDSubscription);
+        switch (tierId)
+        {
+            case 0:
+                BuyProductID(AppData.gemsTier1ProductId);
+                break;
+            case 1:
+                BuyProductID(AppData.gemsTier2ProductId);
+                break;
+            case 2:
+                BuyProductID(AppData.gemsTier3ProductId);
+                break;
+            case 3:
+                BuyProductID(AppData.gemsTier4ProductId);
+                break;
+            default:
+                break;
+        }
     }
 
     void BuyProductID(string productId)
@@ -115,34 +114,25 @@ public class Purchaser : MonoBehaviour, IStoreListener
 
     public PurchaseProcessingResult ProcessPurchase(PurchaseEventArgs args)
     {
-        if (String.Equals(args.purchasedProduct.definition.id, kProductIDConsumable, StringComparison.Ordinal))
+        switch (args.purchasedProduct.definition.id)
         {
-            Debug.Log(string.Format("ProcessPurchase: PASS. Product: '{0}'", args.purchasedProduct.definition.id));
-            //ScoreManager.score += 100;
+            case AppData.gemsTier1ProductId:
+                break;
+            case AppData.gemsTier2ProductId:
+                break;
+            case AppData.gemsTier3ProductId:
+                break;
+            case AppData.gemsTier4ProductId:
+                break;
+            default:
+                Debug.Log(string.Format("ProcessPurchase: FAIL. Unrecognized product: '{0}'", args.purchasedProduct.definition.id));
+                break;
         }
-        else if (String.Equals(args.purchasedProduct.definition.id, kProductIDNonConsumable, StringComparison.Ordinal))
-        {
-            Debug.Log(string.Format("ProcessPurchase: PASS. Product: '{0}'", args.purchasedProduct.definition.id));
-            // TODO: The non-consumable item has been successfully purchased, grant this item to the player.
-        }
-        // Or ... a subscription product has been purchased by this user.
-        else if (String.Equals(args.purchasedProduct.definition.id, kProductIDSubscription, StringComparison.Ordinal))
-        {
-            Debug.Log(string.Format("ProcessPurchase: PASS. Product: '{0}'", args.purchasedProduct.definition.id));
-            // TODO: The subscription item has been successfully purchased, grant this to the player.
-        }
-        // Or ... an unknown product has been purchased by this user. Fill in additional products here....
-        else
-        {
-            Debug.Log(string.Format("ProcessPurchase: FAIL. Unrecognized product: '{0}'", args.purchasedProduct.definition.id));
-        }
-
         // Return a flag indicating whether this product has completely been received, or if the application needs 
         // to be reminded of this purchase at next app launch. Use PurchaseProcessingResult.Pending when still 
         // saving purchased products to the cloud, and when that save is delayed. 
         return PurchaseProcessingResult.Complete;
     }
-
 
     public void OnPurchaseFailed(Product product, PurchaseFailureReason failureReason)
     {

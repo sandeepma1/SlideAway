@@ -81,6 +81,9 @@ public class UiDebugStuff : MonoBehaviour
 
     private void OnResetSaveButtonClicked()
     {
+        PlayerPrefs.DeleteKey(AppData.oldSaveKey);
+        PlayerPrefs.DeleteKey(AppData.localSaveKey);
+        PlayerPrefs.DeleteAll();
         GpsManager.Instance.DeleteGameData();
         StartCoroutine(RestartGame());
     }

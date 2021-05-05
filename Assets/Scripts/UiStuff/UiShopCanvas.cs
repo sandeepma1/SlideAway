@@ -246,14 +246,14 @@ public class UiShopCanvas : MonoBehaviour
                 }
                 else
                 {
-                    Debug.LogError("Gems are less, by more");
+                    UiGemsShopCanvas.OnShowBuyGemsMenu?.Invoke();
                 }
                 AnalyticsManager.ButtonPressed(GameButtons.GemsUnlock);
                 break;
             case CurrencyType.Ads:
                 currentRequestedAdItemId = currentItemId;
                 GameAdManager.OnWatchAd?.Invoke(AdRewardType.SingleReward, currentRequestedAdItemId);
-                AnalyticsManager.ButtonPressed(GameButtons.AdUnclock);
+                AnalyticsManager.ButtonPressed(GameButtons.AdUnlock);
                 break;
             case CurrencyType.Paid:
                 OnPurchaseButtonClicked(currentItemId);
@@ -268,33 +268,38 @@ public class UiShopCanvas : MonoBehaviour
     private void OnPurchaseButtonClicked(string itemId)
     {
         currentRequestedPaidItemId = itemId;
-        string productId = "";
-        float value = Shop.items[currentRequestedPaidItemId].value;
-        if (value < 1)
-        {
-            productId = AppData.commonball;
-        }
-        else if (value < 3)
-        {
-            productId = AppData.greatball;
-        }
-        else if (value < 5)
-        {
-            productId = AppData.epicBall;
-        }
+        string productId = Shop.items[currentRequestedPaidItemId].id;
+        print("productId " + productId);
         CodelessIAPStoreListener.Instance.InitiatePurchase(productId);
+        //float value = Shop.items[currentRequestedPaidItemId].value;
+        //if (value < 1)
+        //{
+        //    productId = AppData.commonball;
+        //}
+        //else if (value < 3)
+        //{
+        //    productId = AppData.greatball;
+        //}
+        //else if (value < 5)
+        //{
+        //    productId = AppData.epicBall;
+        //}
     }
 
     private void OnPurchaseComplete(Product obj)
     {
+        if (Player.IsPlayerDataNull())
+        {
+            return;
+        }
         Player.AddItemUnlockedId(currentRequestedPaidItemId);
         uiShopItems[currentRequestedPaidItemId].UpdateItemStatus();
         OnItemButtonClicked(currentRequestedPaidItemId);
-        currentRequestedPaidItemId = "";
         AnalyticsManager.IAPTransaction(currentRequestedPaidItemId,
             Shop.items[currentRequestedPaidItemId].value, currentRequestedPaidItemId);
         AnalyticsManager.ItemSpent(UnityEngine.Analytics.AcquisitionType.Premium,
                       "Paid Unlocked", Shop.items[currentRequestedPaidItemId].value, currentRequestedPaidItemId);
+        currentRequestedPaidItemId = "";
     }
 
     private void OnPurchaseFailed(Product obj)
@@ -328,7 +333,15 @@ public class UiShopCanvas : MonoBehaviour
 
     private void SetItemSelector(int selectorId, string itemId)
     {
-        itemSelectors[selectorId].SetParent(uiShopItems[itemId].transform);
+        if (uiShopItems.ContainsKey(itemId))
+        {
+            itemSelectors[selectorId].SetParent(uiShopItems[itemId].transform);
+        }
+        else
+        {
+            print("Item id not persent " + itemId);
+        }
+
         itemSelectors[selectorId].DOAnchorPos(Vector2.zero, 0.15f);
         itemSelectors[selectorId].SetAsFirstSibling();
         ChangeMaterial(itemId);
@@ -363,6 +376,11 @@ public class UiShopCanvas : MonoBehaviour
 
     private void ChangeMaterial(string itemId)
     {
+        if (!Shop.items.ContainsKey(itemId))
+        {
+            Hud.SetHudText?.Invoke("***Item ID not in DICT***");
+            return;
+        }
         switch (Shop.items[itemId].itemTypeEnum)
         {
             case ShopItemType.Ball:

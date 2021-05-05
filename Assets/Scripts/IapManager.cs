@@ -24,6 +24,11 @@ public class IapManager : Singleton<IapManager>
         }
     }
 
+    private void Start()
+    {
+
+    }
+
     private void OnDestroy()
     {
         iAPListener.onPurchaseComplete.RemoveListener(onPurchaseComplete);

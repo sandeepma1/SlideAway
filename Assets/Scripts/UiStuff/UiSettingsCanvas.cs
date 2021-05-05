@@ -3,29 +3,29 @@ using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
 using System;
+using TMPro;
 
 public class UiSettingsCanvas : MonoBehaviour
 {
     public static Action<bool> IsSoundEnabled;
     public static Action<bool> IsVibrateEnabled;
     [SerializeField] private Button closeButton;
-    [SerializeField] private Button closeButtonBG;
     [SerializeField] private Button gpsLoginButton;
     [SerializeField] private Button facebookButton;
     [SerializeField] private Button instagramButton;
     [SerializeField] private RectTransform mainPanelRect;
     [SerializeField] private Toggle soundToggle;
     [SerializeField] private Toggle vibrateToggle;
+    [SerializeField] private TextMeshProUGUI versionText;
     private float rectHeight;
     private const float animSpeed = 0.25f;
 
     private void Awake()
     {
-        GpsManager.OnCloudDataLoaded += OnCloudDataLoaded;
+        GpsManager.OnSaveDataLoaded += OnCloudDataLoaded;
         Player.OnPlayerDataLoaded += OnPlayerDataLoaded;
         UiStartCanvas.OnSettingsButtonPressed += OnSettingsButtonPressed;
         closeButton.onClick.AddListener(OnCloseButtonClicked);
-        closeButtonBG.onClick.AddListener(OnCloseButtonClicked);
         gpsLoginButton.onClick.AddListener(OnGpsLoginButton);
         soundToggle.onValueChanged.AddListener(OnSoundToggle);
         vibrateToggle.onValueChanged.AddListener(OnVibrateToggle);
@@ -43,15 +43,15 @@ public class UiSettingsCanvas : MonoBehaviour
         {
             OnPlayerDataLoaded();
         }
+        versionText.text = "Version: " + Application.version;
     }
 
     private void OnDestroy()
     {
-        GpsManager.OnCloudDataLoaded -= OnCloudDataLoaded;
+        GpsManager.OnSaveDataLoaded -= OnCloudDataLoaded;
         Player.OnPlayerDataLoaded -= OnPlayerDataLoaded;
         UiStartCanvas.OnSettingsButtonPressed -= OnSettingsButtonPressed;
         closeButton.onClick.RemoveListener(OnCloseButtonClicked);
-        closeButtonBG.onClick.RemoveListener(OnCloseButtonClicked);
         gpsLoginButton.onClick.RemoveListener(OnGpsLoginButton);
         soundToggle.onValueChanged.RemoveListener(OnSoundToggle);
         vibrateToggle.onValueChanged.RemoveListener(OnVibrateToggle);
@@ -127,14 +127,13 @@ public class UiSettingsCanvas : MonoBehaviour
     {
         UiStartCanvas.OnToggleUiStartPanel?.Invoke(false);
         mainPanelRect.gameObject.SetActive(true);
-        mainPanelRect.DOAnchorPosY(0, animSpeed).OnComplete(() => closeButtonBG.gameObject.SetActive(true));
+        mainPanelRect.DOAnchorPosY(0, animSpeed);
         AnalyticsManager.ScreenVisit(GameScreens.SettingsMenu);
     }
 
     private void HideSettingsMenu()
     {
         UiStartCanvas.OnToggleUiStartPanel?.Invoke(true);
-        closeButtonBG.gameObject.SetActive(false);
         mainPanelRect.DOAnchorPosY(-rectHeight, animSpeed)
             .OnComplete(() => mainPanelRect.gameObject.SetActive(false));
     }

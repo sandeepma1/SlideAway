@@ -1,16 +1,21 @@
 ﻿using UnityEngine;
 using TMPro;
 using System;
-using System.Collections.Generic;
-using System.Collections;
+using UnityEngine.UI;
+using DG.Tweening;
 
 public class UiPlayerDataHud : MonoBehaviour
 {
     public static Action OnUpdateGemsValue;
     public static Action OnUpdateScoreValue;
+    public static Action<RectTransform> OnGemIconPosition;
+    [SerializeField] private RectTransform gemImageRect;
+    [SerializeField] private Button openBuyGemsButton;
     [SerializeField] private GameObject scoreGo;
     [SerializeField] private TextMeshProUGUI currentScore;
     [SerializeField] private TextMeshProUGUI gemsText;
+    private Vector3 scale = new Vector3(1.25f, 1.25f, 1.25f);
+    private const float animSpeed = 0.15f;
 
     private void Awake()
     {
@@ -21,6 +26,12 @@ public class UiPlayerDataHud : MonoBehaviour
         PlayerController.OnGameOver += OnGameOver;
         scoreGo.SetActive(false);
         UpdateGems();
+        openBuyGemsButton.onClick.AddListener(OpenBuyGemMenu);
+    }
+
+    private void Start()
+    {
+        OnGemIconPosition?.Invoke(gemImageRect);
     }
 
     private void OnDestroy()
@@ -30,6 +41,12 @@ public class UiPlayerDataHud : MonoBehaviour
         Player.OnPlayerDataLoaded -= OnPlayerDataLoaded;
         UiStartCanvas.OnGameStart -= OnGameStart;
         PlayerController.OnGameOver -= OnGameOver;
+        openBuyGemsButton.onClick.RemoveListener(OpenBuyGemMenu);
+    }
+
+    private void OpenBuyGemMenu()
+    {
+        UiGemsShopCanvas.OnShowBuyGemsMenu?.Invoke();
     }
 
     private void OnPlayerDataLoaded()
@@ -56,5 +73,7 @@ public class UiPlayerDataHud : MonoBehaviour
     private void UpdateGems()
     {
         gemsText.text = Player.GetGems().ToString();
+        gemImageRect.transform.DOScale(scale, animSpeed)
+                .OnComplete(() => gemImageRect.transform.DOScale(Vector3.one, animSpeed));
     }
 }

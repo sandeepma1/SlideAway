@@ -12,7 +12,7 @@ public enum GameButtons
     UnlockItem,
     PaidUnlock,
     GemsUnlock,
-    AdUnclock,
+    AdUnlock,
     DailyReward,
     Sound,
     Vibrate,
@@ -21,7 +21,11 @@ public enum GameButtons
     GpsLogin,
     FreeGemsByAd,
     Restart,
-    Share
+    Share,
+    BuyGemT1,
+    BuyGemT2,
+    BuyGemT3,
+    BuyGemT4
 }
 
 public enum GameScreens
@@ -34,7 +38,8 @@ public enum GameScreens
     FloorShopMenu,
     BackgroundShopMenu,
     RestartMenu,
-    GameOver
+    GameOver,
+    GemsBuyMenu
 }
 
 public static class AnalyticsManager

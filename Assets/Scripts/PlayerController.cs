@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using DG.Tweening;
 using UnityEngine;
+using TMPro;
+using System.Collections;
 
 public class PlayerController : MonoBehaviour
 {
@@ -11,6 +14,7 @@ public class PlayerController : MonoBehaviour
     public static Action OnBallGemTouched;
     [SerializeField] private Renderer ballMeshRenderer;
     [SerializeField] private Light ballSpotLight;
+    [SerializeField] private SpriteRenderer plus3TextSprite;
     private float speed;
     private bool isGameStarted;
     // private float scoreHue;
@@ -105,7 +109,18 @@ public class PlayerController : MonoBehaviour
             other.gameObject.SetActive(false);
             UpdateScoreAndBallSpeed(2);
             UiGemsSpawnCanvas.OnSpawnSingleGem3D?.Invoke(transform);
+            StartCoroutine(ShowPlus3Text());
         }
+    }
+
+    private Vector3 restPosition = new Vector3(0, 1, 0);
+    private IEnumerator ShowPlus3Text()
+    {
+        plus3TextSprite.transform.localPosition = restPosition;
+        plus3TextSprite.DOFade(1, 0.1f);
+        plus3TextSprite.transform.DOLocalMoveY(2, 0.5f).OnComplete(() => plus3TextSprite.DOFade(0, 0.15f));
+
+        yield return new WaitForEndOfFrame();
     }
 
     private void OnGameStart()

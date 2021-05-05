@@ -18,6 +18,12 @@ public class UiGemsSpawnCanvas : MonoBehaviour
         OnSpawnSingleGem3D += SpawnSingleGem;
         OnSpawnSingleGem2d += SpawnSingleGem2d;
         OnSpawnMultipleGem2d += SpawnMultipleGems2D;
+        UiPlayerDataHud.OnGemIconPosition += OnGemIconPosition;
+    }
+
+    private void OnGemIconPosition(RectTransform obj)
+    {
+        gemEndPosition.transform.position = obj.transform.position;
     }
 
     private void OnDestroy()
@@ -25,6 +31,7 @@ public class UiGemsSpawnCanvas : MonoBehaviour
         OnSpawnSingleGem3D -= SpawnSingleGem;
         OnSpawnSingleGem2d -= SpawnSingleGem2d;
         OnSpawnMultipleGem2d -= SpawnMultipleGems2D;
+        UiPlayerDataHud.OnGemIconPosition -= OnGemIconPosition;
     }
 
     private void SpawnMultipleGems2D(int amount)
@@ -34,7 +41,7 @@ public class UiGemsSpawnCanvas : MonoBehaviour
 
     private IEnumerator SpawnMultipleGems2DSub(int amount)
     {
-        for (int i = 0; i < amount; i++)
+        for (int i = 0; i < 25; i++)
         {
             Vector2 randomPoint = gemSpawnRect.GetRandomPointInRectTransform();
             UiGemSpawn uiGemSpawn = Instantiate(uiGemSpawnPrefab, transform);

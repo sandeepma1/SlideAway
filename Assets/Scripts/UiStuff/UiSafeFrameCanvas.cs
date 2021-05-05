@@ -3,11 +3,8 @@ using System.Collections;
 
 public class UiSafeFrameCanvas : MonoBehaviour
 {
-    private RectTransform rectTransform;
-
     private void Start()
     {
-        rectTransform = GetComponent<RectTransform>();
         StartCoroutine(GetSetSafeFrame());
     }
 
@@ -15,6 +12,6 @@ public class UiSafeFrameCanvas : MonoBehaviour
     {
         yield return new WaitForEndOfFrame();
         Rect safeRect = Screen.safeArea;
-        rectTransform.rect.Set(safeRect.x, safeRect.y, safeRect.width, safeRect.height);
+        GetComponent<RectTransform>().rect.Set(safeRect.x, safeRect.y, safeRect.width, safeRect.height);
     }
 }

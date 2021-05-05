@@ -9,17 +9,11 @@ public class UiStartCanvas : MonoBehaviour
 {
     public static Action<bool> OnToggleUiStartPanel;
     public static Action OnGameStart;
-    public static Action OnHelpButtonPressed;
     public static Action OnSettingsButtonPressed;
     public static Action OnLeaderboardButtonPressed;
     public static Action OnAchievementsButtonPressed;
-    public static Action OnSoundTogglePressed;
-    public static Action OnVibrateTogglePressed;
     public static Action OnShopButtonPressed;
     public static Action OnDailyRewardsButtonPressed;
-    public static Action OnFacebookButtonPressed;
-    public static Action OnInstagramButtonPressed;
-    public static Action OnTwitterButtonPressed;
 
     [SerializeField] private Button tapToStartButton;
     [Space(10)]
@@ -35,21 +29,27 @@ public class UiStartCanvas : MonoBehaviour
     [Space(10)]    //Right Buttons
     [SerializeField] private RectTransform rightButtonsRect;
     [SerializeField] private Button settingsButton;
-    [SerializeField] private Button shopButton;
     [SerializeField] private Button rewardsButton;
     [SerializeField] private TextMeshProUGUI dailyRewardsText;
+
+    [Space(10)]    //Bottom Buttons
+    [SerializeField] private RectTransform bottomButtonsRect;
+    [SerializeField] private Button gemsShopButton;
+    [SerializeField] private Button shopButton;
 
     private TimeSpan rewardTimeSpan;
     private float topHideYPos;
     private float leftHideXPos;
     private float rightHideXPos;
+    private float bottomHideYPos;
     private float leftShowXPos = 15;
     private float rightShowXPos = -15;
+    private float bottomShowYPos = 100;
     private const float animSpeed = 0.25f;
 
     private void Awake()
     {
-        GpsManager.OnCloudDataLoaded += OnCloudDataLoaded;
+        GpsManager.OnSaveDataLoaded += OnCloudDataLoaded;
         OnToggleUiStartPanel += ToggleUiStartPanel;
         Player.OnPlayerDataLoaded += OnPlayerDataLoaded;
         Player.OnUpdateRewardTimer += OnUpdateRewardTimer;
@@ -65,7 +65,7 @@ public class UiStartCanvas : MonoBehaviour
         rewardsButton.onClick.AddListener(OnRewardsButtonPressed);
         shopButton.onClick.AddListener(OnShopButtonClicked);
         settingsButton.onClick.AddListener(OnSettingsButtonClicked);
-        reviewAppButton.onClick.AddListener(OnReviewAppButtonPressed);
+        gemsShopButton.onClick.AddListener(() => UiGemsShopCanvas.OnShowBuyGemsMenu?.Invoke());
         UpdateAllSavedValues();
         InvokeRepeating("CheckReward", 1f, 1f);
         if (!Player.IsPlayerDataNull())
@@ -76,7 +76,7 @@ public class UiStartCanvas : MonoBehaviour
 
     private void OnDestroy()
     {
-        GpsManager.OnCloudDataLoaded -= OnCloudDataLoaded;
+        GpsManager.OnSaveDataLoaded -= OnCloudDataLoaded;
         Player.OnPlayerDataLoaded -= OnPlayerDataLoaded;
         Player.OnUpdateRewardTimer -= OnUpdateRewardTimer;
         Player.OnRewardAvailable -= OnRewardAvailable;
@@ -87,7 +87,7 @@ public class UiStartCanvas : MonoBehaviour
         rewardsButton.onClick.RemoveListener(OnRewardsButtonPressed);
         shopButton.onClick.RemoveListener(OnShopButtonClicked);
         settingsButton.onClick.RemoveListener(OnSettingsButtonClicked);
-        reviewAppButton.onClick.RemoveListener(OnReviewAppButtonPressed);
+        gemsShopButton.onClick.RemoveListener(() => UiGemsShopCanvas.OnShowBuyGemsMenu?.Invoke());
     }
 
     private void OnCloudDataLoaded(bool isCloudDataLoaded, string arg2)
@@ -107,8 +107,10 @@ public class UiStartCanvas : MonoBehaviour
         topHideYPos = topPanelRect.rect.height + 100;
         leftHideXPos = leftButtonsRect.rect.width + 100;
         rightHideXPos = rightButtonsRect.rect.width + 100;
+        bottomHideYPos = -bottomButtonsRect.rect.height - 100;
         leftShowXPos = leftButtonsRect.anchoredPosition.x;
         rightShowXPos = rightButtonsRect.anchoredPosition.x;
+        bottomShowYPos = bottomButtonsRect.anchoredPosition.y;
     }
 
     private void ToggleUiStartPanel(bool isVisible)
@@ -120,12 +122,14 @@ public class UiStartCanvas : MonoBehaviour
             topPanelRect.DOAnchorPosY(0, animSpeed);
             leftButtonsRect.DOAnchorPosX(leftShowXPos, animSpeed);
             rightButtonsRect.DOAnchorPosX(rightShowXPos, animSpeed);
+            bottomButtonsRect.DOAnchorPosY(bottomShowYPos, animSpeed);
         }
         else
         {
             topPanelRect.DOAnchorPosY(topHideYPos, animSpeed);
             leftButtonsRect.DOAnchorPosX(-leftHideXPos, animSpeed);
-            rightButtonsRect.DOAnchorPosX(rightHideXPos, animSpeed).OnComplete(() => mainPanel.SetActive(isVisible));
+            rightButtonsRect.DOAnchorPosX(rightHideXPos, animSpeed);
+            bottomButtonsRect.DOAnchorPosY(bottomHideYPos, animSpeed).OnComplete(() => mainPanel.SetActive(isVisible));
         }
     }
 
@@ -215,11 +219,5 @@ public class UiStartCanvas : MonoBehaviour
         GpsManager.Instance.ShowLeaderboardUI();
         AnalyticsManager.ScreenVisit(GameScreens.Leaderboards);
         AnalyticsManager.ButtonPressed(GameButtons.Leaderboards);
-    }
-
-    private void OnReviewAppButtonPressed()
-    {
-        Application.OpenURL("https://play.google.com/store/apps/details?id=com.bronz.slideway");
-        AnalyticsManager.ButtonPressed(GameButtons.RateUs);
     }
 }

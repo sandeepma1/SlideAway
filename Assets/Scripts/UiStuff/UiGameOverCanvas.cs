@@ -14,6 +14,7 @@ public class UiGameOverCanvas : MonoBehaviour
     [SerializeField] private Button restartButton;
     [SerializeField] private Button watchAdButton;
     [SerializeField] private Button shareButton;
+    [SerializeField] private Button rateUsButton;
     [SerializeField] private TextMeshProUGUI score;
     [SerializeField] private TextMeshProUGUI highScore;
     private const float hidePosX = -1500;
@@ -31,6 +32,7 @@ public class UiGameOverCanvas : MonoBehaviour
         {
             panels[i].anchoredPosition = new Vector2(hidePosX, panels[i].anchoredPosition.y);
         }
+        rateUsButton.onClick.AddListener(OnReviewAppButtonPressed);
     }
 
     private void OnDestroy()
@@ -39,12 +41,19 @@ public class UiGameOverCanvas : MonoBehaviour
         watchAdButton.onClick.RemoveListener(WatchAdButtonClicked);
         shareButton.onClick.RemoveListener(ShareButtonClicked);
         PlayerController.OnGameOver -= GameOver;
+        rateUsButton.onClick.RemoveListener(OnReviewAppButtonPressed);
     }
 
     private void WatchAdButtonClicked()
     {
         GameAdManager.OnWatchAd?.Invoke(AdRewardType.FreeGems, "");
         AnalyticsManager.ButtonPressed(GameButtons.FreeGemsByAd);
+    }
+
+    private void OnReviewAppButtonPressed()
+    {
+        Application.OpenURL("https://play.google.com/store/apps/details?id=com.bronz.slideway");
+        AnalyticsManager.ButtonPressed(GameButtons.RateUs);
     }
 
     private void ShareButtonClicked()
