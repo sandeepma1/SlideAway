@@ -56,14 +56,15 @@ public class UiShopItem : MonoBehaviour
 
     public void UpdateAdItemValue()
     {
-        if (Player.save.adsWatched.ContainsKey(itemId))
-        {
-            valueText.text = Player.save.adsWatched[itemId] + " " + AppData.adIcon;
-        }
-        else
-        {
-            valueText.text = Shop.items[itemId].value + " " + AppData.adIcon;
-        }
+        valueText.text = Player.AdsWatchedOfItemId(itemId) + "/" + Shop.items[itemId].value + " " + AppData.adIcon;
+        //if (Player.save.adsWatched.ContainsKey(itemId))
+        //{
+        //    valueText.text = Player.save.adsWatched[itemId] + " " + AppData.adIcon;
+        //}
+        //else
+        //{
+        //    valueText.text = Shop.items[itemId].value + " " + AppData.adIcon;
+        //}
     }
 
     public void UpdateItemStatus()

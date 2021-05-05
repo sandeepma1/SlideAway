@@ -309,6 +309,18 @@ internal static class Player
         }
         SaveGameUserData();
     }
+
+    internal static int AdsWatchedOfItemId(string itemId)
+    {
+        if (Player.save.adsWatched.ContainsKey(itemId))// Already watched one or more ads
+        {
+            return Player.save.adsWatched[itemId];
+        }
+        else
+        {
+            return 0;
+        }
+    }
     #endregion
 
     private static void OnGameOver()
