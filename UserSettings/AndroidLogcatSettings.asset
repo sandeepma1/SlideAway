@@ -3,7 +3,7 @@
     "m_SelectedPackage": {
         "deviceId": "16e3121d",
         "name": "com.bronz.slideway",
-        "processId": 23763,
+        "processId": 29537,
         "exited": false
     },
     "m_SelectedPriority": 0,
@@ -60,6 +60,12 @@
             "deviceId": "16e3121d",
             "name": "com.bronz.slideway",
             "processId": 23763,
+            "exited": false
+        },
+        {
+            "deviceId": "16e3121d",
+            "name": "com.bronz.slideway",
+            "processId": 29537,
             "exited": false
         },
         {
