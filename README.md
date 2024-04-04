@@ -1,29 +1,10 @@
-# README #
+Stay on the wall and SLIDE as many as you can!
 
-This README would normally document whatever steps are necessary to get your application up and running.
+Slide Away is an arcade game where players simply tap the screen to switch the ball direction. Stay on the path as long as possible.
+Sound easy? You wish!!
+Your ball moves through many colorful platforms and backgrounds but if the ball falls off the platform, it's all over! Game ends and you have to start all over again.
+Collect as many gems as possible to unlock cool balls, platforms and backgrounds. Enjoy a butter smooth gameplay with lots of fun
 
-### What is this repository for? ###
+Just tap the screen to change the direction of the ball, in zigzag manner. Try not to fall off the edges!
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
-
-### How do I get set up? ###
-
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
-
-### Contribution guidelines ###
-
-* Writing tests
-* Code review
-* Other guidelines
-
-### Who do I talk to? ###
-
-* Repo owner or admin
-* Other community or team contact
+How far can you go?
